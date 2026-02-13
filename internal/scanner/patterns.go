@@ -3,6 +3,7 @@ package scanner
 import (
 	"math/big"
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -17,14 +18,220 @@ func BuiltinScanners() []Scanner {
 	scanners = append(scanners, urlScanners()...)
 	scanners = append(scanners, ibanScanners()...)
 	scanners = append(scanners, creditCardScanners()...)
+	scanners = append(scanners, ssnScanners()...)
+	scanners = append(scanners, macAddressScanners()...)
 	scanners = append(scanners, phoneScanners()...)
 	scanners = append(scanners, dateScanners()...)
 	scanners = append(scanners, ipScanners()...)
+	scanners = append(scanners, medicalScanners()...)
+	scanners = append(scanners, ageScanners()...)
+	scanners = append(scanners, idNumberScanners()...)
+	scanners = append(scanners, orgScanners()...)
 	scanners = append(scanners, financialScanners()...)
 	scanners = append(scanners, addressScanners()...)
 	scanners = append(scanners, personScanners()...)
 
 	return scanners
+}
+
+// --- SSN ---
+
+func ssnScanners() []Scanner {
+	return []Scanner{
+		// US SSN: 123-45-6789
+		NewRegexScanner(
+			regexp.MustCompile(`\b\d{3}-\d{2}-\d{4}\b`),
+			"SSN", 0.95,
+			WithValidator(func(s string) bool {
+				// Reject 000, 666, 900-999 in area number
+				area := s[:3]
+				return area != "000" && area != "666" && area[0] != '9'
+			}),
+		),
+		// German Sozialversicherungsnummer (context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Sozialversicherungsnummer|SVN|SV-Nummer|Versicherungsnummer)[:\s]+(\d{2}\s?\d{6}\s?[A-Z]\s?\d{3})`),
+			"SSN", 0.90,
+			WithExtractGroup(1),
+		),
+		// Swiss AHV: 756.1234.5678.97
+		NewRegexScanner(
+			regexp.MustCompile(`\b756\.\d{4}\.\d{4}\.\d{2}\b`),
+			"SSN", 0.95,
+		),
+		// UK NINO: AB 12 34 56 C
+		NewRegexScanner(
+			regexp.MustCompile(`\b[A-CEGHJ-PR-TW-Z][A-CEGHJ-NPR-TW-Z]\s?\d{2}\s?\d{2}\s?\d{2}\s?[A-D]\b`),
+			"SSN", 0.90,
+		),
+		// French INSEE: 1 85 12 75 108 042 36
+		NewRegexScanner(
+			regexp.MustCompile(`\b[12]\s?\d{2}\s?\d{2}\s?\d{2}\s?\d{3}\s?\d{3}\s?\d{2}\b`),
+			"SSN", 0.85,
+		),
+	}
+}
+
+// --- MEDICAL ---
+
+func medicalScanners() []Scanner {
+	return []Scanner{
+		// ICD-10 codes (context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Diagnose|ICD|diagnosis|diagnostic)[:\s]+([A-Z]\d{2}(?:\.\d{1,4})?)`),
+			"MEDICAL", 0.90,
+			WithExtractGroup(1),
+		),
+		// Blood pressure: 120/80 mmHg
+		NewRegexScanner(
+			regexp.MustCompile(`\b\d{2,3}/\d{2,3}\s?(?:mmHg|mm\s?Hg)\b`),
+			"MEDICAL", 0.90,
+		),
+		// Lab values with units
+		NewRegexScanner(
+			regexp.MustCompile(`\b\d{1,4}(?:[.,]\d{1,2})?\s?(?:mg/dL|mmol/L|g/dL|mL/min|ng/mL|µg/L|U/L|IU/L|pg/mL|µmol/L)\b`),
+			"MEDICAL", 0.85,
+		),
+		// BMI values (context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:BMI|Body Mass Index)[:\s]+(\d{2}(?:[.,]\d{1,2})?)`),
+			"MEDICAL", 0.85,
+			WithExtractGroup(1),
+		),
+	}
+}
+
+// --- AGE ---
+
+func ageScanners() []Scanner {
+	return []Scanner{
+		// "X years old" / "X-year-old"
+		NewRegexScanner(
+			regexp.MustCompile(`\b(\d{1,3})\s?(?:-\s?)?(?:years?\s?(?:old)?|year-old)\b`),
+			"AGE", 0.85,
+			WithExtractGroup(1),
+			WithValidator(func(s string) bool {
+				n, _ := strconv.Atoi(s)
+				return n > 0 && n < 150
+			}),
+		),
+		// "X Jahre alt"
+		NewRegexScanner(
+			regexp.MustCompile(`\b(\d{1,3})\s?(?:Jahre?\s?(?:alt)?)\b`),
+			"AGE", 0.85,
+			WithExtractGroup(1),
+			WithValidator(func(s string) bool {
+				n, _ := strconv.Atoi(s)
+				return n > 0 && n < 150
+			}),
+		),
+		// Context-triggered: "age: X" / "Alter: X"
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:age|Alter)[:\s]+(\d{1,3})\b`),
+			"AGE", 0.80,
+			WithExtractGroup(1),
+			WithValidator(func(s string) bool {
+				n, _ := strconv.Atoi(s)
+				return n > 0 && n < 150
+			}),
+		),
+		// Birth year: "born in 1990", "geboren 1985"
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:born\s+(?:in\s+)?|geboren\s+(?:im\s+)?(?:Jahr\s+)?)((?:19|20)\d{2})\b`),
+			"AGE", 0.80,
+			WithExtractGroup(1),
+		),
+	}
+}
+
+// --- ID_NUMBER ---
+
+func idNumberScanners() []Scanner {
+	return []Scanner{
+		// German Steuer-ID (context-triggered): 11 digits
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Steuer-?ID|Steueridentifikationsnummer|Tax\s?ID|TIN)[:\s]+(\d{11})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// German Personalausweis (context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Personalausweis|Ausweis(?:nummer)?|ID\s?card)[:\s]+([A-Z0-9]{9,10})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// German Reisepass (context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Reisepass|Passport)[:\s]+([A-Z0-9]{9,10})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// EU VAT numbers: 2-letter country code + 8-12 alphanumeric
+		NewRegexScanner(
+			regexp.MustCompile(`\b(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)[A-Z0-9]{8,12}\b`),
+			"ID_NUMBER", 0.85,
+		),
+	}
+}
+
+// --- ORG ---
+
+func orgScanners() []Scanner {
+	// Name part for corporate names: allow abbreviations (2-6 uppercase) alongside normal names.
+	corpNamePart := `(?:[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ]{2,6}|` + nameComponent + `)(?:-` + nameComponent + `)?`
+
+	// Corporate suffixes (German)
+	corpDE := corpNamePart + `(?:\s+` + corpNamePart + `)*\s+(?:GmbH|AG|SE|KG|OHG|KGaA|UG|e\.G\.|e\.V\.)\b`
+	// Corporate suffixes (International)
+	corpIntl := corpNamePart + `(?:\s+` + corpNamePart + `)*\s+(?:Ltd|Inc|Corp|LLC|PLC|SA|SAS|SARL|SpA|SRL|BV|NV)\.?\b`
+	// German institutions: Universitätsklinikum/Uniklinik/Universität/Klinikum + Name
+	deInstitution := `(?:Universitätsklinikum|Uniklinik|Universität|Klinikum)\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	// Klinik + preposition + Name
+	klinikPrep := `Klinik\s+(?:am|für|an\s+der|im)\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	// French hospitals
+	frHospital := `(?:Hôpital|CHU)\s+` + namePattern + `(?:[\s\-]+` + namePattern + `)*`
+	// Italian hospitals
+	itHospital := `(?:Ospedale|Policlinico)\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	// Spanish hospitals
+	esHospital := `Hospital\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	// German insurance: AOK + Name
+	aok := `AOK\s+` + namePattern
+	// German government: Deutsche Rentenversicherung (+ optional Name)
+	drv := `Deutsche\s+Rentenversicherung(?:\s+` + namePattern + `)?`
+	// University medical centers: Name UMC | UMC Name
+	umcSuffix := namePattern + `\s+UMC`
+	umcPrefix := `UMC\s+` + namePattern
+
+	return []Scanner{
+		NewRegexScanner(regexp.MustCompile(corpDE), "ORG", 0.90),
+		NewRegexScanner(regexp.MustCompile(corpIntl), "ORG", 0.90),
+		NewRegexScanner(regexp.MustCompile(deInstitution), "ORG", 0.85),
+		NewRegexScanner(regexp.MustCompile(klinikPrep), "ORG", 0.85),
+		NewRegexScanner(regexp.MustCompile(frHospital), "ORG", 0.85),
+		NewRegexScanner(regexp.MustCompile(itHospital), "ORG", 0.85),
+		NewRegexScanner(regexp.MustCompile(esHospital), "ORG", 0.85),
+		NewRegexScanner(regexp.MustCompile(aok), "ORG", 0.90),
+		NewRegexScanner(regexp.MustCompile(drv), "ORG", 0.90),
+		NewRegexScanner(regexp.MustCompile(umcSuffix), "ORG", 0.85),
+		NewRegexScanner(regexp.MustCompile(umcPrefix), "ORG", 0.85),
+	}
+}
+
+// --- MAC_ADDRESS ---
+
+func macAddressScanners() []Scanner {
+	return []Scanner{
+		// Standard: XX:XX:XX:XX:XX:XX or XX-XX-XX-XX-XX-XX
+		NewRegexScanner(
+			regexp.MustCompile(`\b([0-9A-Fa-f]{2}[:-]){5}[0-9A-Fa-f]{2}\b`),
+			"MAC_ADDRESS", 0.95,
+		),
+		// Cisco format: XXXX.XXXX.XXXX
+		NewRegexScanner(
+			regexp.MustCompile(`\b[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\.[0-9A-Fa-f]{4}\b`),
+			"MAC_ADDRESS", 0.90,
+		),
+	}
 }
 
 // --- PERSON ---
@@ -90,6 +297,25 @@ func emailScanners() []Scanner {
 
 // --- PHONE ---
 
+// ibanPrefixRe matches the leading portion of an IBAN (country code + check digits +
+// space-separated groups) that may appear before a phone-like digit sequence.
+var ibanPrefixRe = regexp.MustCompile(`[A-Z]{2}\d{2}(?:[\s\-][\dA-Z]{4})*[\s\-]?[\dA-Z]{0,4}$`)
+
+// phoneNotInIBAN rejects a phone match if it sits inside an IBAN-like structure.
+// It looks back up to 40 bytes from the match start for an IBAN prefix.
+func phoneNotInIBAN(fullText string, start, end int) bool {
+	lookback := 40
+	from := start - lookback
+	if from < 0 {
+		from = 0
+	}
+	prefix := fullText[from:start]
+	if ibanPrefixRe.MatchString(prefix) {
+		return false
+	}
+	return true
+}
+
 func phoneScanners() []Scanner {
 	// International format with + prefix: +49, +43, +41, +33, etc.
 	// Supports separators: space, dash, dot, or none.
@@ -102,9 +328,9 @@ func phoneScanners() []Scanner {
 	deLocal := `0[1-9]\d{1,4}[\s.\-/]?\d[\d\s.\-]{4,10}\d`
 
 	return []Scanner{
-		NewRegexScanner(regexp.MustCompile(intl), "PHONE", 0.95),
-		NewRegexScanner(regexp.MustCompile(generic00), "PHONE", 0.90),
-		NewRegexScanner(regexp.MustCompile(deLocal), "PHONE", 0.85),
+		NewRegexScanner(regexp.MustCompile(intl), "PHONE", 0.95, WithContextValidator(phoneNotInIBAN)),
+		NewRegexScanner(regexp.MustCompile(generic00), "PHONE", 0.90, WithContextValidator(phoneNotInIBAN)),
+		NewRegexScanner(regexp.MustCompile(deLocal), "PHONE", 0.85, WithContextValidator(phoneNotInIBAN)),
 	}
 }
 

@@ -20,6 +20,9 @@ type RegexScanner struct {
 	// validate is an optional function that post-validates a match.
 	// If non-nil, only matches where validate returns true are kept.
 	validate func(match string) bool
+	// contextValidate is an optional function that validates a match
+	// against the surrounding text. Receives full text and byte offsets.
+	contextValidate func(fullText string, start, end int) bool
 	// extractGroup specifies which submatch group to use as the entity text.
 	// 0 means the full match, 1+ means the corresponding capture group.
 	extractGroup int
@@ -31,6 +34,12 @@ type RegexScannerOption func(*RegexScanner)
 // WithValidator adds a post-match validation function.
 func WithValidator(fn func(string) bool) RegexScannerOption {
 	return func(rs *RegexScanner) { rs.validate = fn }
+}
+
+// WithContextValidator adds a context-aware validation function.
+// It receives the full text and the byte offsets of the match.
+func WithContextValidator(fn func(fullText string, start, end int) bool) RegexScannerOption {
+	return func(rs *RegexScanner) { rs.contextValidate = fn }
 }
 
 // WithExtractGroup sets which submatch group to use as the entity.
@@ -60,6 +69,9 @@ func (rs *RegexScanner) Scan(text string) []Entity {
 		if rs.validate != nil && !rs.validate(matched) {
 			continue
 		}
+		if rs.contextValidate != nil && !rs.contextValidate(text, loc[0], loc[1]) {
+			continue
+		}
 		entities = append(entities, Entity{
 			Start:    loc[0],
 			End:      loc[1],
@@ -84,6 +96,9 @@ func (rs *RegexScanner) scanWithGroups(text string) []Entity {
 		end := loc[g*2+1]
 		matched := text[start:end]
 		if rs.validate != nil && !rs.validate(matched) {
+			continue
+		}
+		if rs.contextValidate != nil && !rs.contextValidate(text, start, end) {
 			continue
 		}
 		entities = append(entities, Entity{

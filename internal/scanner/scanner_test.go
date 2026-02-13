@@ -531,6 +531,329 @@ func TestSecret_TrueNegatives(t *testing.T) {
 	}
 }
 
+// --- SSN tests ---
+
+func TestSSN_TruePositives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name     string
+		input    string
+		wantType string
+		wantText string
+	}{
+		{"US SSN", "My SSN is 123-45-6789.", "SSN", "123-45-6789"},
+		{"Swiss AHV", "AHV-Nr: 756.1234.5678.97", "SSN", "756.1234.5678.97"},
+		{"UK NINO", "National insurance AB123456C", "SSN", "AB123456C"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == tc.wantType && e.Text == tc.wantText {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("%s not found in %q: wanted %q, got %v", tc.wantType, tc.input, tc.wantText, entities)
+			}
+		})
+	}
+}
+
+func TestSSN_TrueNegatives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+	}{
+		{"US SSN rejected 000", "SSN 000-12-3456"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			for _, e := range entities {
+				if e.Type == "SSN" {
+					t.Errorf("SSN false positive in %q: got %v", tc.input, e)
+				}
+			}
+		})
+	}
+}
+
+// --- MEDICAL tests ---
+
+func TestMedical_TruePositives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name     string
+		input    string
+		wantType string
+		wantText string
+	}{
+		{"ICD-10 code", "Diagnose: J45.0", "MEDICAL", "J45.0"},
+		{"Blood pressure", "BP: 120/80 mmHg", "MEDICAL", "120/80 mmHg"},
+		{"Lab value mg/dL", "Glucose: 126 mg/dL", "MEDICAL", "126 mg/dL"},
+		{"BMI value", "BMI: 28.5", "MEDICAL", "28.5"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == tc.wantType && e.Text == tc.wantText {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("%s not found in %q: wanted %q, got %v", tc.wantType, tc.input, tc.wantText, entities)
+			}
+		})
+	}
+}
+
+func TestMedical_TrueNegatives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []string{
+		"The score is 5/10 overall.",
+		"The temperature is 25 degrees.",
+	}
+	for _, input := range cases {
+		entities := s.Scan(input)
+		for _, e := range entities {
+			if e.Type == "MEDICAL" {
+				t.Errorf("MEDICAL false positive in %q: got %v", input, e)
+			}
+		}
+	}
+}
+
+// --- AGE tests ---
+
+func TestAge_TruePositives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name     string
+		input    string
+		wantType string
+		wantText string
+	}{
+		{"years old", "Patient is 45 years old", "AGE", "45"},
+		{"Jahre alt", "Patient ist 67 Jahre alt", "AGE", "67"},
+		{"age context", "age: 32", "AGE", "32"},
+		{"born in year", "born in 1990", "AGE", "1990"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == tc.wantType && e.Text == tc.wantText {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("%s not found in %q: wanted %q, got %v", tc.wantType, tc.input, tc.wantText, entities)
+			}
+		})
+	}
+}
+
+func TestAge_TrueNegatives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []string{
+		"The building is 200 meters tall.",
+		"We need 50 items in stock.",
+	}
+	for _, input := range cases {
+		entities := s.Scan(input)
+		for _, e := range entities {
+			if e.Type == "AGE" {
+				t.Errorf("AGE false positive in %q: got %v", input, e)
+			}
+		}
+	}
+}
+
+// --- ID_NUMBER tests ---
+
+func TestIDNumber_TruePositives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name     string
+		input    string
+		wantType string
+		wantText string
+	}{
+		{"German Steuer-ID", "Steuer-ID: 12345678901", "ID_NUMBER", "12345678901"},
+		{"Passport number", "Reisepass: C01X00T47", "ID_NUMBER", "C01X00T47"},
+		{"EU VAT", "VAT DE123456789", "ID_NUMBER", "DE123456789"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == tc.wantType && e.Text == tc.wantText {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("%s not found in %q: wanted %q, got %v", tc.wantType, tc.input, tc.wantText, entities)
+			}
+		})
+	}
+}
+
+func TestIDNumber_TrueNegatives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []string{
+		"The reference number is ABC123.",
+		"Order ID 9876 confirmed.",
+	}
+	for _, input := range cases {
+		entities := s.Scan(input)
+		for _, e := range entities {
+			if e.Type == "ID_NUMBER" {
+				t.Errorf("ID_NUMBER false positive in %q: got %v", input, e)
+			}
+		}
+	}
+}
+
+// --- MAC_ADDRESS tests ---
+
+func TestMACAddress_TruePositives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name     string
+		input    string
+		wantType string
+		wantText string
+	}{
+		{"MAC colon", "Device MAC: 00:1A:2B:3C:4D:5E", "MAC_ADDRESS", "00:1A:2B:3C:4D:5E"},
+		{"MAC dash", "MAC 00-1A-2B-3C-4D-5E", "MAC_ADDRESS", "00-1A-2B-3C-4D-5E"},
+		{"MAC Cisco", "Interface aabb.ccdd.eeff", "MAC_ADDRESS", "aabb.ccdd.eeff"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == tc.wantType && e.Text == tc.wantText {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("%s not found in %q: wanted %q, got %v", tc.wantType, tc.input, tc.wantText, entities)
+			}
+		})
+	}
+}
+
+func TestMACAddress_TrueNegatives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []string{
+		"The hex value is 0x1A2B3C.",
+		"Color code #FF00FF is magenta.",
+	}
+	for _, input := range cases {
+		entities := s.Scan(input)
+		for _, e := range entities {
+			if e.Type == "MAC_ADDRESS" {
+				t.Errorf("MAC_ADDRESS false positive in %q: got %v", input, e)
+			}
+		}
+	}
+}
+
+// --- PHONE/IBAN overlap tests ---
+
+func TestPhone_NotInsideIBAN(t *testing.T) {
+	s := DefaultScanner(nil)
+	// Fake IBANs with invalid checksums — should NOT produce PHONE entities.
+	cases := []string{
+		"IBAN: DE75 5001 0517 0123 4567 89",
+		"Transfer to DE27 5135 0025 0205 1340 64 please.",
+		"FR00 2004 1010 0505 0001 3M02 606",
+	}
+	for _, input := range cases {
+		entities := s.Scan(input)
+		for _, e := range entities {
+			if e.Type == "PHONE" {
+				t.Errorf("PHONE false positive inside fake IBAN in %q: got %v", input, e)
+			}
+		}
+	}
+}
+
+// --- ORG tests ---
+
+func TestOrganization_TruePositives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"German GmbH", "Kontakt mit Müller GmbH aufgenommen.", "Müller GmbH"},
+		{"German SE", "SAP SE hat berichtet.", "SAP SE"},
+		{"German AG", "von Siemens AG erhalten.", "Siemens AG"},
+		{"International Ltd", "Filed by Acme Ltd today.", "Acme Ltd"},
+		{"Universitätsklinikum", "Behandlung im Universitätsklinikum Frankfurt.", "Universitätsklinikum Frankfurt"},
+		{"Klinik am", "Aufnahme in die Klinik am See.", "Klinik am See"},
+		{"French hospital", "Admis à l'Hôpital Européen.", "Hôpital Européen"},
+		{"Italian hospital", "Ricoverato all'Ospedale San Raffaele.", "Ospedale San Raffaele"},
+		{"Spanish hospital", "Ingresado en Hospital Universitario.", "Hospital Universitario"},
+		{"AOK", "Versichert bei AOK Hessen.", "AOK Hessen"},
+		{"Deutsche Rentenversicherung", "Antrag bei Deutsche Rentenversicherung.", "Deutsche Rentenversicherung"},
+		{"UMC suffix", "Behandlung im Amsterdam UMC.", "Amsterdam UMC"},
+		{"UMC prefix", "Referred to UMC Utrecht.", "UMC Utrecht"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == "ORG" && e.Text == tc.want {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("ORG not found in %q: wanted %q, got %v", tc.input, tc.want, entities)
+			}
+		})
+	}
+}
+
+func TestOrganization_TrueNegatives(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+	}{
+		{"plain text", "The weather is nice today."},
+		{"bare Klinik", "Die Klinik ist geschlossen."},
+		{"lowercase gmbh", "Das ist keine gmbh firma."},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			for _, e := range entities {
+				if e.Type == "ORG" {
+					t.Errorf("ORG false positive in %q: got %v", tc.input, e)
+				}
+			}
+		})
+	}
+}
+
 // --- Composite scanner tests ---
 
 func TestOverlapDedup(t *testing.T) {

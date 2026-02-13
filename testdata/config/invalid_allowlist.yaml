@@ -1,0 +1,6 @@
+scanner:
+  allowlist:
+    - "[bad"
+
+logging:
+  level: "info"

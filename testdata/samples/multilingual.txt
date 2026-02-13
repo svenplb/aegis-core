@@ -1,0 +1,11 @@
+Monsieur Jean-Pierre Dubois habite au 15 rue de la Paix, 75002 Paris.
+Son numéro de téléphone est le +33 6 12 34 56 78.
+
+Il signor Marco Rossi abita in Via Roma 42, 00184 Roma.
+Il suo numero di telefono è +39 06 1234 5678.
+
+El señor Carlos García vive en Calle Mayor 10, 28013 Madrid.
+Su número de teléfono es +34 612 345 678.
+
+Mevrouw Anna de Vries woont op Keizersgracht 100, 1015 Amsterdam.
+Haar e-mail is anna.devries@voorbeeld.nl.

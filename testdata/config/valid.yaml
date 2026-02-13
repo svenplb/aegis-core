@@ -1,0 +1,12 @@
+scanner:
+  custom_patterns:
+    - name: "Employee ID"
+      type: "EMPLOYEE_ID"
+      pattern: "EMP-\\d{6}"
+      score: 0.9
+  allowlist:
+    - "example\\.com"
+    - "John Doe"
+
+logging:
+  level: "debug"

@@ -1,0 +1,325 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"sort"
+	"strings"
+	"time"
+
+	"github.com/charmbracelet/bubbles/textarea"
+	"github.com/charmbracelet/bubbles/viewport"
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+
+	"github.com/svenplb/aegis-core/internal/redactor"
+	"github.com/svenplb/aegis-core/internal/scanner"
+)
+
+// View states.
+const (
+	stateInput   = iota
+	stateResults
+)
+
+// Lipgloss color mapping per entity type.
+func entityColor(entityType string) lipgloss.Color {
+	switch entityType {
+	case "PERSON":
+		return lipgloss.Color("5") // magenta
+	case "PHONE", "IP_ADDRESS":
+		return lipgloss.Color("3") // yellow
+	case "DATE":
+		return lipgloss.Color("4") // blue
+	case "EMAIL", "URL":
+		return lipgloss.Color("6") // cyan
+	case "SECRET", "FINANCIAL", "CREDIT_CARD":
+		return lipgloss.Color("1") // red
+	case "ADDRESS", "IBAN":
+		return lipgloss.Color("2") // green
+	default:
+		return lipgloss.Color("3") // yellow
+	}
+}
+
+// Styles.
+var (
+	titleStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("7")).
+			Background(lipgloss.Color("5")).
+			Padding(0, 1)
+
+	headerBoxStyle = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("5")).
+			Padding(0, 1).
+			Width(45)
+
+	sectionStyle = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("8"))
+
+	dimStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("8"))
+
+	helpStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("8"))
+)
+
+type model struct {
+	state    int
+	textarea textarea.Model
+	viewport viewport.Model
+	result   *redactor.RedactResult
+	scanner  *scanner.CompositeScanner
+	width    int
+	height   int
+	ready    bool // viewport dimensions set
+	scanTime time.Duration
+}
+
+func initialModel() model {
+	ta := textarea.New()
+	ta.Placeholder = "Paste or type text here..."
+	ta.ShowLineNumbers = false
+	ta.SetHeight(12)
+	ta.SetWidth(70)
+	ta.Focus()
+	ta.CharLimit = 0 // unlimited
+
+	s := scanner.DefaultScanner(nil)
+
+	return model{
+		state:    stateInput,
+		textarea: ta,
+		scanner:  s,
+	}
+}
+
+func (m model) Init() tea.Cmd {
+	return textarea.Blink
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+
+		taWidth := min(msg.Width-4, 80)
+		m.textarea.SetWidth(taWidth)
+
+		if !m.ready {
+			m.viewport = viewport.New(msg.Width, msg.Height-6)
+			m.ready = true
+		} else {
+			m.viewport.Width = msg.Width
+			m.viewport.Height = msg.Height - 6
+		}
+		if m.state == stateResults && m.result != nil {
+			m.viewport.SetContent(m.renderResults())
+		}
+
+	case tea.KeyMsg:
+		switch m.state {
+		case stateInput:
+			switch msg.Type {
+			case tea.KeyCtrlC:
+				return m, tea.Quit
+			case tea.KeyCtrlD:
+				return m.doScan()
+			}
+		case stateResults:
+			switch msg.String() {
+			case "q", "ctrl+c":
+				return m, tea.Quit
+			case "n":
+				m.textarea.Reset()
+				m.textarea.Focus()
+				m.state = stateInput
+				m.result = nil
+				return m, textarea.Blink
+			}
+		}
+	}
+
+	switch m.state {
+	case stateInput:
+		var cmd tea.Cmd
+		m.textarea, cmd = m.textarea.Update(msg)
+		cmds = append(cmds, cmd)
+	case stateResults:
+		var cmd tea.Cmd
+		m.viewport, cmd = m.viewport.Update(msg)
+		cmds = append(cmds, cmd)
+	}
+
+	return m, tea.Batch(cmds...)
+}
+
+func (m model) doScan() (tea.Model, tea.Cmd) {
+	text := m.textarea.Value()
+	if strings.TrimSpace(text) == "" {
+		return m, nil
+	}
+
+	start := time.Now()
+	entities := m.scanner.Scan(text)
+	result := redactor.Redact(text, entities)
+	m.scanTime = time.Since(start)
+
+	m.result = &result
+	m.state = stateResults
+	m.textarea.Blur()
+
+	if m.ready {
+		m.viewport.SetContent(m.renderResults())
+		m.viewport.GotoTop()
+	}
+
+	return m, nil
+}
+
+func (m model) renderResults() string {
+	if m.result == nil {
+		return ""
+	}
+
+	var b strings.Builder
+	r := m.result
+
+	// --- Sanitized section ---
+	b.WriteString(sectionStyle.Render("─── SANITIZED ") + sectionStyle.Render(strings.Repeat("─", max(m.width-16, 20))))
+	b.WriteString("\n")
+	b.WriteString(r.SanitizedText)
+	b.WriteString("\n\n")
+
+	// --- Mappings section ---
+	if len(r.Mappings) > 0 {
+		b.WriteString(sectionStyle.Render("─── MAPPINGS ") + sectionStyle.Render(strings.Repeat("─", max(m.width-15, 20))))
+		b.WriteString("\n")
+
+		// Calculate column widths.
+		maxToken, maxOrig := 0, 0
+		for _, m := range r.Mappings {
+			if len(m.Token) > maxToken {
+				maxToken = len(m.Token)
+			}
+			if len(m.Original) > maxOrig {
+				maxOrig = len(m.Original)
+			}
+		}
+
+		for _, mp := range r.Mappings {
+			clr := entityColor(mp.Type)
+			tokenStyled := lipgloss.NewStyle().Foreground(clr).Bold(true).Render(mp.Token)
+			typeStyled := lipgloss.NewStyle().Foreground(clr).Render(mp.Type)
+
+			// Pad token and original for alignment.
+			tokenPad := strings.Repeat(" ", maxToken-len(mp.Token))
+			origPad := strings.Repeat(" ", maxOrig-len(mp.Original))
+
+			b.WriteString(fmt.Sprintf("  %s%s    %s%s    %s\n",
+				tokenStyled, tokenPad,
+				mp.Original, origPad,
+				typeStyled))
+		}
+		b.WriteString("\n")
+	}
+
+	// --- Statistics section ---
+	typeCounts := make(map[string]int)
+	for _, e := range r.Entities {
+		typeCounts[e.Type]++
+	}
+
+	if len(typeCounts) > 0 {
+		b.WriteString(sectionStyle.Render("─── STATISTICS ") + sectionStyle.Render(strings.Repeat("─", max(m.width-17, 20))))
+		b.WriteString("\n")
+
+		// Sort types by count descending.
+		type typeStat struct {
+			name  string
+			count int
+		}
+		var stats []typeStat
+		maxCount := 0
+		for name, count := range typeCounts {
+			stats = append(stats, typeStat{name, count})
+			if count > maxCount {
+				maxCount = count
+			}
+		}
+		sort.Slice(stats, func(i, j int) bool {
+			return stats[i].count > stats[j].count
+		})
+
+		maxBarWidth := 20
+		maxName := 0
+		for _, s := range stats {
+			if len(s.name) > maxName {
+				maxName = len(s.name)
+			}
+		}
+
+		for _, s := range stats {
+			clr := entityColor(s.name)
+			barLen := s.count * maxBarWidth / maxCount
+			if barLen < 1 {
+				barLen = 1
+			}
+			bar := lipgloss.NewStyle().Foreground(clr).Render(strings.Repeat("█", barLen))
+			namePad := strings.Repeat(" ", maxName-len(s.name))
+			nameStyled := lipgloss.NewStyle().Foreground(clr).Bold(true).Render(s.name)
+			b.WriteString(fmt.Sprintf("  %s%s  %d  %s\n", nameStyled, namePad, s.count, bar))
+		}
+	}
+
+	return b.String()
+}
+
+func (m model) View() string {
+	switch m.state {
+	case stateInput:
+		return m.viewInput()
+	case stateResults:
+		return m.viewResults()
+	}
+	return ""
+}
+
+func (m model) viewInput() string {
+	header := headerBoxStyle.Render(titleStyle.Render("aegis") + " — PII Scanner")
+
+	help := helpStyle.Render("  Ctrl+D scan  •  Ctrl+C quit")
+
+	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n", header, m.textarea.View(), help)
+}
+
+func (m model) viewResults() string {
+	if m.result == nil {
+		return ""
+	}
+
+	entityCount := len(m.result.Entities)
+	ms := m.scanTime.Milliseconds()
+
+	headerText := fmt.Sprintf("%s — %d entities found (%dms)",
+		titleStyle.Render("aegis"), entityCount, ms)
+	header := headerBoxStyle.Render(headerText)
+
+	help := helpStyle.Render("  n new scan  •  q quit")
+
+	return fmt.Sprintf("\n%s\n\n%s\n\n%s\n", header, m.viewport.View(), help)
+}
+
+func main() {
+	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}

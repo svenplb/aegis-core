@@ -1,0 +1,9 @@
+scanner:
+  custom_patterns:
+    - name: "Bad Pattern"
+      type: "BAD"
+      pattern: "[invalid"
+      score: 0.5
+
+logging:
+  level: "info"

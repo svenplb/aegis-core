@@ -1,0 +1,21 @@
+# aegis-core configuration
+#
+# All fields are optional — sensible defaults are used when omitted.
+
+# Scanner settings
+scanner:
+  # Additional custom regex patterns (on top of built-in patterns)
+  custom_patterns: []
+    # - name: "Employee ID"
+    #   type: "EMPLOYEE_ID"
+    #   pattern: "EMP-\\d{6}"
+    #   score: 0.9
+
+  # Allowlist: regexes for text that should NOT be flagged as PII
+  allowlist: []
+    # - "example\\.com"
+    # - "John Doe"  # test placeholder name
+
+# Logging settings
+logging:
+  level: "info"   # debug, info, warn, error

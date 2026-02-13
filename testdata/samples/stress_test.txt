@@ -1,0 +1,596 @@
+VERTRAULICH — Patientenakte Nr. 2024-KH-08172
+
+Klinik für Innere Medizin, Universitätsklinikum Frankfurt
+Hauptstraße 142, 60311 Frankfurt am Main
+Tel: +49 69 6301 5678 | Fax: +49 69 6301 5679
+E-Mail: innere.medizin@uniklinik-frankfurt.de
+
+Behandelnder Arzt: Dr. Heinrich Braunschweiger
+Station: 4B, Zimmer 217
+
+═══════════════════════════════════════════════════════════════════
+AUFNAHMEBERICHT
+═══════════════════════════════════════════════════════════════════
+
+Patient: Herr Thomas Michael Schmidt
+Geburtsdatum: 15.03.1978
+Adresse: Gartenstraße 27a, 60594 Frankfurt am Main
+Telefon: +49 170 4839201
+E-Mail: thomas.m.schmidt@gmail.com
+Krankenkasse: AOK Hessen
+Versichertennummer: A123456789
+IBAN für Erstattungen: DE89 3704 0044 0532 0130 00
+
+Nächste Angehörige:
+  - Ehefrau: Frau Maria Elisabeth Schmidt, geb. Müller
+    Tel: +49 171 9283746
+    E-Mail: maria.schmidt@web.de
+  - Sohn: Herr Maximilian Schmidt
+    Tel: +49 176 5554321
+
+Aufnahmedatum: 12.03.2024
+Einweisender Arzt: Dr. Sabine Hoffmann, Gemeinschaftspraxis am Römer
+  Berliner Straße 15, 60311 Frankfurt
+  Tel: +49 69 2199 8800
+  E-Mail: s.hoffmann@praxis-roemer.de
+
+═══════════════════════════════════════════════════════════════════
+ANAMNESE
+═══════════════════════════════════════════════════════════════════
+
+Herr Thomas Schmidt stellte sich am 12.03.2024 in unserer Notaufnahme vor mit
+seit drei Tagen bestehenden retrosternalen Schmerzen, Dyspnoe bei leichter
+Belastung und Übelkeit. Der Patient berichtet, dass die Beschwerden erstmals
+am 09.03.2024 nach körperlicher Anstrengung (Gartenarbeit) aufgetreten seien.
+
+Vorerkrankungen:
+  - Diabetes mellitus Typ 2 (Erstdiagnose 15.06.2015)
+  - Arterielle Hypertonie (seit 2012)
+  - Hypercholesterinämie
+  - Z.n. Appendektomie (22.08.1995)
+
+Familienanamnese:
+  Vater: Herr Karl Schmidt, verstorben am 03.11.2019 an Myokardinfarkt (Alter 72)
+  Mutter: Frau Helga Schmidt, geb. Weber, lebt, bekannte KHK
+  Bruder: Herr Andreas Schmidt, 52 Jahre, Diabetes mellitus Typ 2
+
+Aktuelle Medikation:
+  - Metformin 1000mg 1-0-1
+  - Ramipril 5mg 1-0-0
+  - Atorvastatin 20mg 0-0-1
+  - ASS 100mg 1-0-0
+
+Allergien: Penicillin (Exanthem), Kontrastmittel (leichte Reaktion 2018)
+
+Sozialanamnese:
+  Beruf: Softwareentwickler bei SAP SE, Walldorf
+  Familienstand: verheiratet, 2 Kinder
+  Nikotin: Ex-Raucher (aufgehört 2010, davor 15 py)
+  Alkohol: gelegentlich (1-2 Bier/Woche)
+
+═══════════════════════════════════════════════════════════════════
+BEFUNDE BEI AUFNAHME
+═══════════════════════════════════════════════════════════════════
+
+Vitalzeichen (12.03.2024, 14:30 Uhr):
+  RR: 165/95 mmHg
+  HF: 92/min, regelmäßig
+  SpO2: 94% (Raumluft)
+  Temp: 37.2°C
+  Gewicht: 94 kg, Größe: 181 cm, BMI: 28.7
+
+Körperliche Untersuchung:
+  Herz: Herztöne rein, rhythmisch, keine Herzgeräusche
+  Lunge: Vesikuläratmen beidseits, keine RGs
+  Abdomen: weich, keine Druckschmerzen, normale Darmgeräusche
+  Extremitäten: keine Ödeme, periphere Pulse tastbar
+
+EKG (12.03.2024):
+  Sinusrhythmus, HF 90/min, ST-Hebungen in V1-V4,
+  reziproken ST-Senkungen in II, III, aVF
+  → Verdacht auf akuten Vorderwandinfarkt (STEMI)
+
+Labor (12.03.2024, 15:00 Uhr):
+  Troponin T hs: 2847 ng/L (Ref: <14)
+  CK: 1256 U/L (Ref: <190)
+  CK-MB: 187 U/L (Ref: <25)
+  BNP: 890 pg/mL (Ref: <100)
+  HbA1c: 7.8% (Ref: <6.5%)
+  Kreatinin: 1.1 mg/dL
+  eGFR: 78 mL/min
+  Cholesterin gesamt: 245 mg/dL
+  LDL: 162 mg/dL
+  HDL: 38 mg/dL
+  Triglyzeride: 225 mg/dL
+  Glukose: 189 mg/dL
+
+═══════════════════════════════════════════════════════════════════
+THERAPIE UND VERLAUF
+═══════════════════════════════════════════════════════════════════
+
+12.03.2024 — Akuttherapie:
+  Sofortige Herzkatheteruntersuchung durch Prof. Dr. Wolfgang Hartmann
+  (Kardiologie, Uniklinik Frankfurt, Tel: +49 69 6301 7700)
+  Befund: hochgradige Stenose des RIVA (95%), moderate Stenose des RCX (60%)
+  Intervention: PCI mit Drug-Eluting-Stent (DES) im RIVA
+  Prozedur komplikationslos, TIMI-III-Fluss nach Intervention
+
+  Medikation post-PCI:
+    - Heparin 5000 IE i.v. Bolus, dann 1000 IE/h
+    - Clopidogrel 600mg Loading, dann 75mg/d
+    - ASS 300mg, dann 100mg/d
+    - Atorvastatin 80mg
+    - Metoprolol 47.5mg 1-0-1
+
+13.03.2024 — 1. postinterventioneller Tag:
+  Patient kreislaufstabil, keine Angina pectoris
+  Troponin T fallend: 1890 ng/L
+  EKG: rückläufige ST-Hebungen
+  Echokardiographie (Dr. Claudia Neumann):
+    LVEF 45%, Vorderwandhypokinesie, kein Perikarderguss
+  Mobilisierung im Zimmer begonnen
+
+14.03.2024 — 2. postinterventioneller Tag:
+  Patient beschwerdefrei, Mobilisierung auf Station
+  Troponin T: 756 ng/L (weiter fallend)
+  RR: 135/80 mmHg unter Therapie
+  Kollege Dr. Stefan Richter hat die Visite übernommen
+  Diabetologisches Konsil: Frau Dr. Petra Zimmermann
+    Empfehlung: Metformin pausieren (eGFR-Kontrolle), ggf. Insulin-Therapie
+
+15.03.2024 — Echokardiographie-Kontrolle:
+  LVEF leicht gebessert auf 48%
+  Diastolische Dysfunktion Grad I
+  Dr. Claudia Neumann: "Befund ist mit der erwarteten Erholung vereinbar"
+
+16.03.2024 — Belastungs-EKG (unter Überwachung):
+  75 Watt über 6 Minuten, keine ST-Veränderungen, keine Angina
+  Abbruch wegen Dyspnoe, maximale HF 132/min (Ziel-HF erreicht)
+
+═══════════════════════════════════════════════════════════════════
+ENTLASSUNGSBERICHT
+═══════════════════════════════════════════════════════════════════
+
+Entlassungsdatum: 18.03.2024
+Entlassungsdiagnosen:
+  1. Akuter ST-Hebungsinfarkt (STEMI) der Vorderwand (I21.0)
+  2. KHK, Zwei-Gefäß-Erkrankung (I25.12)
+  3. Z.n. PCI mit DES-Implantation RIVA (12.03.2024)
+  4. Diabetes mellitus Typ 2, suboptimal eingestellt (E11.65)
+  5. Arterielle Hypertonie (I10)
+  6. Gemischte Hyperlipidämie (E78.2)
+  7. Adipositas Grad I (E66.01)
+
+Entlassungsmedikation:
+  - ASS 100mg 1-0-0 (lebenslang)
+  - Clopidogrel 75mg 1-0-0 (für 12 Monate bis 18.03.2025)
+  - Metoprolol 95mg 1-0-1
+  - Ramipril 5mg 1-0-0
+  - Atorvastatin 80mg 0-0-1
+  - Pantoprazol 20mg 1-0-0
+  - Metformin 1000mg 1-0-1 (Wiederaufnahme nach Kreatinin-Kontrolle)
+  - Insulin Glargin 10 IE zur Nacht (neu, bis HbA1c-Kontrolle)
+
+Empfehlungen:
+  1. Kardiologische Rehabilitation (Antrag gestellt bei Deutsche Rentenversicherung)
+     Kontakt Reha-Koordination: Frau Angelika Braun
+     Tel: +49 69 6301 8800, E-Mail: reha@uniklinik-frankfurt.de
+  2. Ambulante kardiologische Nachsorge bei Dr. Sabine Hoffmann
+     Erster Termin: 25.03.2024
+  3. Diabetologische Mitbehandlung: Dr. Petra Zimmermann
+     Praxis: Friedberger Landstraße 88, 60316 Frankfurt
+     Tel: +49 69 4305 2200
+  4. Kontroll-Echokardiographie in 3 Monaten
+  5. HbA1c-Kontrolle in 3 Monaten, Ziel <7.0%
+  6. Nikotinabstinenz beibehalten, Ernährungsberatung
+  7. Körperliche Aktivität: zunächst 3x/Woche 30 min Walking
+
+═══════════════════════════════════════════════════════════════════
+RECHNUNGSINFORMATIONEN
+═══════════════════════════════════════════════════════════════════
+
+Rechnungsnummer: RN-2024-08172-KH
+Gesamtbetrag: €47.832,50
+  - Stationärer Aufenthalt (7 Tage): €12.600,00
+  - Herzkatheteruntersuchung: €8.450,00
+  - PCI mit DES: €15.200,00
+  - Labor und Diagnostik: €3.782,50
+  - Medikamente: €1.800,00
+  - Echokardiographie (2x): €1.200,00
+  - Belastungs-EKG: €450,00
+  - Konsile: €350,00
+  - Sonstige: €4.000,00
+
+Zahlungsweise: Krankenkasse (AOK Hessen)
+Kreditkarte für Eigenanteil: 4532 0151 2345 6789
+Bankverbindung Patient: DE89 3704 0044 0532 0130 00 (BIC: COBADEFFXXX)
+Bankverbindung Klinik: DE75 5001 0517 0123 4567 89 (BIC: INGDDEFFXXX)
+
+═══════════════════════════════════════════════════════════════════
+KORRESPONDENZ
+═══════════════════════════════════════════════════════════════════
+
+An: Dr. Sabine Hoffmann <s.hoffmann@praxis-roemer.de>
+CC: Dr. Petra Zimmermann <p.zimmermann@diabetologie-ffm.de>
+Datum: 18.03.2024
+
+Sehr geehrte Frau Kollegin Hoffmann,
+
+hiermit übersende ich Ihnen den Entlassungsbericht Ihres Patienten
+Herr Thomas Schmidt (geb. 15.03.1978).
+
+Herr Schmidt wurde vom 12.03.2024 bis 18.03.2024 in unserer Klinik
+wegen eines akuten STEMI behandelt. Die PCI war erfolgreich, die
+Pumpfunktion ist mit einer LVEF von 48% nur leicht eingeschränkt.
+
+Bitte beachten Sie die duale Plättchenhemmung (ASS + Clopidogrel)
+bis mindestens 18.03.2025. Eine vorzeitige Beendigung ist aufgrund
+des DES kontraindiziert.
+
+Der HbA1c von 7.8% zeigt eine suboptimale Diabeteseinstellung.
+Frau Dr. Zimmermann wird die diabetologische Mitbehandlung übernehmen.
+
+Bei Rückfragen erreichen Sie mich unter +49 69 6301 5678 oder per
+E-Mail an h.braunschweiger@uniklinik-frankfurt.de.
+
+Mit freundlichen Grüßen,
+
+Dr. med. Heinrich Braunschweiger
+Oberarzt, Klinik für Innere Medizin
+Universitätsklinikum Frankfurt
+Theodor-Stern-Kai 7, 60590 Frankfurt am Main
+
+═══════════════════════════════════════════════════════════════════
+KONSILBERICHT — DIABETOLOGIE
+═══════════════════════════════════════════════════════════════════
+
+Konsiliarius: Frau Dr. Petra Zimmermann
+Datum: 14.03.2024
+
+Fragestellung: Diabetesmanagement peri-interventionell und
+Therapieoptimierung nach STEMI
+
+Befund:
+Patient Thomas Schmidt, 45 Jahre, bekannter DM Typ 2 seit 2015.
+Aktuelle Therapie: Metformin 2000mg/d.
+HbA1c 7.8% — Zielwert nicht erreicht.
+BZ-Tagesprofil am 14.03.2024:
+  nüchtern: 156 mg/dL
+  postprandial: 234 mg/dL
+  vor dem Abendessen: 178 mg/dL
+
+Empfehlung:
+  1. Metformin pausieren bis eGFR >60 bestätigt (Kontrastmittelgabe)
+  2. Insulin Glargin 10 IE zur Nacht starten
+  3. BZ-Selbstkontrolle: nüchtern und 2h postprandial
+  4. Vorstellung in meiner Praxis 2 Wochen nach Entlassung
+     Adresse: Friedberger Landstraße 88, 60316 Frankfurt
+     Tel: +49 69 4305 2200
+     E-Mail: p.zimmermann@diabetologie-ffm.de
+  5. Langfristig: Erwägung von GLP-1-RA (z.B. Semaglutid)
+     wegen kardioprotektiver Wirkung
+
+═══════════════════════════════════════════════════════════════════
+EUROPÄISCHES PARTNERKRANKENHAUS — KONSILBERICHT
+═══════════════════════════════════════════════════════════════════
+
+From: Prof. Jean-Claude Lefèvre
+Department of Cardiology, Hôpital Européen Georges-Pompidou
+20 rue Leblanc, 75015 Paris
+Tel: +33 1 56 09 20 00
+E-Mail: jc.lefevre@hegp.aphp.fr
+
+To: Dr. Heinrich Braunschweiger
+Universitätsklinikum Frankfurt
+
+Re: Teleconsultation regarding patient Thomas Schmidt (DOB: 15.03.1978)
+
+Dear colleague Dr. Braunschweiger,
+
+Thank you for the teleconsultation on 15.03.2024 regarding your patient
+Mr. Thomas Schmidt. Based on the angiography images you shared:
+
+The LAD lesion appears to be a type B2 lesion with calcification. The stent
+placement looks optimal with good apposition on the IVUS images. I agree
+with your decision to defer the RCX lesion for now and reassess with FFR
+in 3-6 months.
+
+Regarding the impaired LVEF of 48%, I would recommend cardiac MRI at
+3 months to assess viability and potential for recovery. Our colleague
+Madame Sophie Durand at Hôpital Pitié-Salpêtrière (E-Mail: s.durand@aphp.fr)
+has extensive experience with post-MI viability assessment.
+
+For the dual antiplatelet therapy, the recent TWILIGHT-ACS data supports
+consideration of ticagrelor monotherapy after 3 months of DAPT in
+selected patients. This could be discussed at the 3-month follow-up.
+
+Best regards,
+Prof. Jean-Claude Lefèvre
+
+═══════════════════════════════════════════════════════════════════
+ITALIENISCHES PARTNERKRANKENHAUS
+═══════════════════════════════════════════════════════════════════
+
+Da: Dott. Alessandro Moretti
+Dipartimento di Cardiologia, Ospedale San Raffaele
+Via Olgettina 60, 20132 Milano
+Tel: +39 02 2643 2001
+E-Mail: a.moretti@hsr.it
+
+Oggetto: Secondo parere — Paziente Thomas Schmidt
+
+Gentile Collega Dr. Braunschweiger,
+
+ho esaminato il caso del signor Thomas Schmidt come richiesto.
+La strategia di rivascolarizzazione è appropriata. Concordo con il
+trattamento conservativo della lesione RCX per il momento.
+
+Per quanto riguarda l'ottimizzazione della terapia lipidica,
+considererei l'aggiunta di ezetimibe al trattamento con atorvastatina
+80mg se il LDL rimane >70 mg/dL al controllo a 6 settimane.
+
+Il paziente potrebbe beneficiare di un programma di riabilitazione
+cardiaca strutturato. Il nostro centro partner a Piazza del Duomo 5, 20121 Milano
+offre un programma eccellente.
+
+Cordiali saluti,
+Dott. Alessandro Moretti
+
+═══════════════════════════════════════════════════════════════════
+SPANISCHES PARTNERKRANKENHAUS
+═══════════════════════════════════════════════════════════════════
+
+De: Dr. María Elena García Fernández
+Servicio de Cardiología, Hospital Universitario La Paz
+Paseo de la Castellana 261, 28046 Madrid
+Tel: +34 917 277 000
+E-Mail: me.garcia@hulp.es
+
+Asunto: Consulta telemática — Paciente Thomas Schmidt
+
+Estimado colega Dr. Braunschweiger,
+
+Gracias por compartir el caso del señor Thomas Schmidt.
+
+Respecto al manejo diabetológico post-IAM, nuestro departamento ha
+publicado recientemente datos sobre el uso de inhibidores de SGLT2
+(específicamente empagliflozina) en pacientes con DM2 post-infarto.
+Los resultados muestran una reducción significativa de eventos
+cardiovasculares adversos mayores (MACE) a 12 meses.
+
+Le recomiendo considerar la adición de empagliflozina 10mg al
+régimen terapéutico del paciente, especialmente dada la FEVI
+ligeramente reducida y el control glucémico subóptimo.
+
+Mi colega Dr. Carlos Martínez puede proporcionarle los datos
+del estudio. Contacto: c.martinez@hulp.es, Tel: +34 917 277 100
+
+Atentamente,
+Dra. María Elena García Fernández
+
+═══════════════════════════════════════════════════════════════════
+NIEDERLÄNDISCHES PARTNERKRANKENHAUS
+═══════════════════════════════════════════════════════════════════
+
+Van: Dr. Willem de Groot
+Afdeling Cardiologie, Amsterdam UMC
+Meibergdreef 9, 1105 Amsterdam
+Tel: +31 20 566 9111
+E-Mail: w.degroot@amsterdamumc.nl
+
+Betreft: Teleconsultatie — Patiënt Thomas Schmidt
+
+Beste collega Dr. Braunschweiger,
+
+Bedankt voor de consultatie betreffende de heer Thomas Schmidt.
+
+Met betrekking tot de cardiale revalidatie kan ik het Nederlandse
+hartrevalidatieprogramma aanbevelen als model. Mevrouw Anna van der Berg,
+onze revalidatiecoördinator, heeft uitgebreid materiaal beschikbaar.
+Contactgegevens: a.vanderberg@amsterdamumc.nl, Tel: +31 20 566 9200
+
+De combinatie van coronaire hartziekte en diabetes mellitus type 2
+vraagt om een multidisciplinaire aanpak. Ons centrum aan de
+Herengracht 450, 1017 Amsterdam heeft hier ruime ervaring mee.
+
+Met vriendelijke groet,
+Dr. Willem de Groot
+
+═══════════════════════════════════════════════════════════════════
+IT-SICHERHEITSVORFALL — VERTRAULICH
+═══════════════════════════════════════════════════════════════════
+
+Datum: 17.03.2024
+Gemeldet von: Herr Michael Weber, IT-Sicherheitsbeauftragter
+E-Mail: m.weber@uniklinik-frankfurt.de
+
+Vorfall: Verdächtige API-Schlüssel in Konfigurationsdateien gefunden
+
+Bei einer routinemäßigen Sicherheitsüberprüfung wurden folgende
+sensible Daten in einer Konfigurationsdatei auf dem Entwicklungsserver
+gefunden:
+
+  OpenAI API Key: sk-proj-xK7mN2pQ9rS4tU6vW8yA1bC3dE5fG7hJ9kL0mN2pO4qR6sT8uV0wX
+  Anthropic API Key: sk-ant-api03-vR4wX6yZ8aB0cD2eF4gH6iJ8kL0mN2pO4qR6sT8uV
+  AWS Access Key: AKIAIOSFODNN7EXAMPLE
+  GitHub Token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
+  Slack Bot Token: xoxb-1234567890-1234567890123-ABCDEFGHIJKLMNOpqrstuvwx
+
+  Server-IP: 192.168.1.100
+  Backup-Server: 10.0.0.50
+  Datenbank-Server: 172.16.0.25
+  IPv6 Gateway: 2001:0db8:85a3:0000:0000:8a2e:0370:7334
+
+  Bearer Token aus Log-Datei:
+  Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkw
+
+  PEM-Schlüssel gefunden in /etc/ssl/private/:
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEpAIBAAKCAQEA0Z3VS5JJcds3xfn/ygWyF8PbnGy...
+  -----END RSA PRIVATE KEY-----
+
+Maßnahmen:
+  1. Alle betroffenen Schlüssel wurden sofort rotiert
+  2. Git-History wird bereinigt
+  3. Schulung für Entwicklerteam geplant
+
+Kontakt IT-Sicherheit:
+  Herr Michael Weber
+  Tel: +49 69 6301 9900
+  Mobil: +49 172 8765432
+  E-Mail: m.weber@uniklinik-frankfurt.de
+  Büro: Informatikstraße 5, 60590 Frankfurt
+
+═══════════════════════════════════════════════════════════════════
+VERSICHERUNGSKORRESPONDENZ
+═══════════════════════════════════════════════════════════════════
+
+AOK Hessen
+Basler Straße 2, 61352 Bad Homburg
+Tel: +49 6172 272 0
+E-Mail: service@aok-hessen.de
+
+Betreff: Kostenübernahme für stationäre Behandlung
+Versicherter: Herr Thomas Michael Schmidt
+Versichertennummer: A123456789
+Geburtsdatum: 15.03.1978
+
+Sehr geehrte Damen und Herren,
+
+hiermit bestätigen wir die Kostenübernahme für die stationäre
+Behandlung vom 12.03.2024 bis 18.03.2024 im Universitätsklinikum
+Frankfurt.
+
+Gesamtkosten: €47.832,50
+Eigenanteil des Versicherten (7 Tage × €10): €70,00
+Erstattung an Klinik: €47.762,50
+
+Überweisung erfolgt auf das Konto:
+IBAN: DE75 5001 0517 0123 4567 89
+BIC: INGDDEFFXXX
+Verwendungszweck: RN-2024-08172-KH / Schmidt, Thomas
+
+Für Rückfragen steht Ihnen Frau Katharina Brenner zur Verfügung:
+Tel: +49 6172 272 500
+E-Mail: k.brenner@aok-hessen.de
+
+Mit freundlichen Grüßen,
+Frau Katharina Brenner
+Sachbearbeiterin Leistungsabteilung
+
+═══════════════════════════════════════════════════════════════════
+REHABILITATIONSANTRAG
+═══════════════════════════════════════════════════════════════════
+
+Deutsche Rentenversicherung Hessen
+Städelstraße 28, 60596 Frankfurt am Main
+
+Antragsteller: Thomas Michael Schmidt
+Geb.: 15.03.1978
+Rentenversicherungsnr.: 12 150378 S 503
+Anschrift: Gartenstraße 27a, 60594 Frankfurt am Main
+
+Beantragte Maßnahme: Anschlussheilbehandlung (AHB) — kardiologisch
+Vorgeschlagene Einrichtung: Klinik am See, Bad Nauheim
+Kontakt: Frau Dr. Elisabeth Hartung, Tel: +49 6032 944 0
+E-Mail: aufnahme@klinik-am-see.de
+
+Kostenübernahme: €8.750,00 (3 Wochen stationäre Reha)
+IBAN der Reha-Klinik: DE27 5135 0025 0205 1340 64
+
+Befürwortung durch behandelnden Arzt:
+Dr. Heinrich Braunschweiger
+Stempel/Unterschrift: [siehe Anlage]
+
+═══════════════════════════════════════════════════════════════════
+NACHSORGE-PROTOKOLL (Ambulante Termine)
+═══════════════════════════════════════════════════════════════════
+
+Termin 1: 25.03.2024 — Dr. Sabine Hoffmann (Hausärztin)
+  Patient Thomas Schmidt, keine Beschwerden
+  RR 130/82, HF 68/min
+  Labor: Troponin normalisiert, Kreatinin 0.9 mg/dL
+  Metformin wieder angesetzt
+
+Termin 2: 08.04.2024 — Frau Dr. Petra Zimmermann (Diabetologie)
+  HbA1c-Kontrolle angeordnet
+  Insulin Glargin auf 14 IE gesteigert
+  BZ-Tagebuch besprochen
+
+Termin 3: 15.04.2024 — Dr. Sabine Hoffmann
+  Patient Thomas Schmidt berichtet über gute Belastbarkeit
+  Beginn der kardiologischen Reha am 22.04.2024
+  Kreditkartenzahlung für Zusatzleistungen: 5500 0000 0000 0004
+
+Termin 4: 20.05.2024 — Dr. Sabine Hoffmann
+  Post-Reha-Kontrolle
+  Patient fühlt sich deutlich besser
+  Gewicht: 91 kg (-3 kg)
+  RR 125/78, HF 64/min
+
+Termin 5: 18.06.2024 — Dr. Claudia Neumann (Kardiologie)
+  Kontroll-Echokardiographie: LVEF 52% (gebessert!)
+  Keine Wandbewegungsstörungen mehr
+  Cardiac MRI geplant für 15.07.2024
+
+Termin 6: 15.07.2024 — Prof. Wolfgang Hartmann (Kardiologie)
+  Cardiac MRI: keine Narbe, vollständige Erholung der Wandbewegung
+  FFR-Messung RCX: 0.85 → keine Intervention erforderlich
+  Empfehlung: Clopidogrel weiter bis 18.03.2025
+
+Termin 7: 01.08.2024 — Frau Dr. Petra Zimmermann (Diabetologie)
+  HbA1c: 6.9% — Zielwert erreicht!
+  Insulin Glargin reduziert auf 10 IE
+  Empagliflozin 10mg hinzugefügt (kardioprotektiv)
+
+Termin 8: 15.09.2024 — Dr. Sabine Hoffmann
+  Patient Thomas Schmidt: ausgezeichneter Allgemeinzustand
+  Gewicht: 87 kg (BMI 26.5 — Zielgewicht fast erreicht)
+  Sportlich aktiv: 4x/Woche Walking + 2x/Woche Schwimmen
+  Alle Werte im Zielbereich
+
+═══════════════════════════════════════════════════════════════════
+ZAHLUNGSÜBERSICHT
+═══════════════════════════════════════════════════════════════════
+
+Datum          Betrag          Beschreibung                  Konto
+12.03.2024     €47.832,50     Krankenhausrechnung           DE89 3704 0044 0532 0130 00
+12.03.2024     €70,00          Eigenanteil                   4532 0151 2345 6789
+18.03.2024     €47.762,50     AOK Erstattung                DE75 5001 0517 0123 4567 89
+22.04.2024     €8.750,00      Reha-Kosten                   DE27 5135 0025 0205 1340 64
+22.04.2024     €450,00         Reha-Zusatzleistungen         5500 0000 0000 0004
+15.09.2024     €185,00         Praxisgebühren (gesamt)       DE89 3704 0044 0532 0130 00
+
+Gesamtkosten Behandlung: €57.217,50
+Davon Eigenanteil: €705,00
+Davon Kasse/DRV: €56.512,50
+
+Überweisungen erfolgten via:
+  - Banküberweisung: IBAN DE89 3704 0044 0532 0130 00
+  - Kreditkarte Visa: 4532 0151 2345 6789
+  - Kreditkarte MC: 5500 0000 0000 0004
+
+Bearbeiterin: Frau Katharina Brenner
+Kontakt: k.brenner@aok-hessen.de | +49 6172 272 500
+
+═══════════════════════════════════════════════════════════════════
+INTERNER VERMERK — NUR FÜR KLINIKPERSONAL
+═══════════════════════════════════════════════════════════════════
+
+System-URLs für diesen Patientenfall:
+  KIS-System: https://kis.uniklinik-frankfurt.de/patient/2024-08172
+  PACS-Bildarchiv: https://pacs.uniklinik-frankfurt.de/study/CT20240312-0847
+  Labor-Portal: https://labor.uniklinik-frankfurt.de/results/2024-08172
+
+API-Endpunkte (nur internes Netzwerk):
+  REST-API: https://api.internal.uniklinik-frankfurt.de/v2/patients/08172
+  FHIR-Server: https://fhir.uniklinik-frankfurt.de/Patient/T.Schmidt.1978
+
+Kontakt IT-Support:
+  Helpdesk: +49 69 6301 1111
+  Server-Admin: Herr Patrick Schulze, p.schulze@uniklinik-frankfurt.de
+  Netzwerk: IP-Range 192.168.10.0/24, Gateway: 192.168.10.1
+
+═══════════════════════════════════════════════════════════════════
+ENDE DER AKTE
+═══════════════════════════════════════════════════════════════════

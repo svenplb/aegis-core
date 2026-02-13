@@ -1,0 +1,10 @@
+Transaction report for client contact: john.doe@finance.com
+
+Credit card ending in 4111 1111 1111 1111 was used for payment.
+Wire transfer to IBAN GB29 NWBK 6016 1331 9268 19 confirmed.
+Amount: $2,500.00
+
+API key found in config: sk-proj-abc123def456ghi789jkl012mno345pqr678
+
+Customer support: +44 20 7946 0958
+Backup contact: +33 1 42 68 53 00

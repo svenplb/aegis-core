@@ -204,7 +204,7 @@ Gesamtbetrag: €47.832,50
 Zahlungsweise: Krankenkasse (AOK Hessen)
 Kreditkarte für Eigenanteil: 4532 0151 2345 6789
 Bankverbindung Patient: DE89 3704 0044 0532 0130 00 (BIC: COBADEFFXXX)
-Bankverbindung Klinik: DE75 5001 0517 0123 4567 89 (BIC: INGDDEFFXXX)
+Bankverbindung Klinik: DE41 5001 0517 0123 4567 89 (BIC: INGDDEFFXXX)
 
 ═══════════════════════════════════════════════════════════════════
 KORRESPONDENZ
@@ -413,7 +413,7 @@ gefunden:
   OpenAI API Key: sk-proj-xK7mN2pQ9rS4tU6vW8yA1bC3dE5fG7hJ9kL0mN2pO4qR6sT8uV0wX
   Anthropic API Key: sk-ant-api03-vR4wX6yZ8aB0cD2eF4gH6iJ8kL0mN2pO4qR6sT8uV
   AWS Access Key: AKIAIOSFODNN7EXAMPLE
-  GitHub Token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefgh
+  GitHub Token: ghp_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghij
   Slack Bot Token: xoxb-1234567890-1234567890123-ABCDEFGHIJKLMNOpqrstuvwx
 
   Server-IP: 192.168.1.100
@@ -466,7 +466,7 @@ Eigenanteil des Versicherten (7 Tage × €10): €70,00
 Erstattung an Klinik: €47.762,50
 
 Überweisung erfolgt auf das Konto:
-IBAN: DE75 5001 0517 0123 4567 89
+IBAN: DE41 5001 0517 0123 4567 89
 BIC: INGDDEFFXXX
 Verwendungszweck: RN-2024-08172-KH / Schmidt, Thomas
 
@@ -496,7 +496,7 @@ Kontakt: Frau Dr. Elisabeth Hartung, Tel: +49 6032 944 0
 E-Mail: aufnahme@klinik-am-see.de
 
 Kostenübernahme: €8.750,00 (3 Wochen stationäre Reha)
-IBAN der Reha-Klinik: DE27 5135 0025 0205 1340 64
+IBAN der Reha-Klinik: DE44 5135 0025 0205 1340 64
 
 Befürwortung durch behandelnden Arzt:
 Dr. Heinrich Braunschweiger
@@ -556,8 +556,8 @@ ZAHLUNGSÜBERSICHT
 Datum          Betrag          Beschreibung                  Konto
 12.03.2024     €47.832,50     Krankenhausrechnung           DE89 3704 0044 0532 0130 00
 12.03.2024     €70,00          Eigenanteil                   4532 0151 2345 6789
-18.03.2024     €47.762,50     AOK Erstattung                DE75 5001 0517 0123 4567 89
-22.04.2024     €8.750,00      Reha-Kosten                   DE27 5135 0025 0205 1340 64
+18.03.2024     €47.762,50     AOK Erstattung                DE41 5001 0517 0123 4567 89
+22.04.2024     €8.750,00      Reha-Kosten                   DE44 5135 0025 0205 1340 64
 22.04.2024     €450,00         Reha-Zusatzleistungen         5500 0000 0000 0004
 15.09.2024     €185,00         Praxisgebühren (gesamt)       DE89 3704 0044 0532 0130 00
 

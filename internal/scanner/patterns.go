@@ -89,12 +89,18 @@ func medicalScanners() []Scanner {
 		),
 		// Lab values with units
 		NewRegexScanner(
-			regexp.MustCompile(`\b\d{1,4}(?:[.,]\d{1,2})?\s?(?:mg/dL|mmol/L|g/dL|mL/min|ng/mL|µg/L|U/L|IU/L|pg/mL|µmol/L)\b`),
+			regexp.MustCompile(`\b\d{1,4}(?:[.,]\d{1,2})?\s?(?:mg/dL|mmol/L|g/dL|mL/min|ng/mL|ng/L|µg/L|U/L|IU/L|pg/mL|µmol/L)\b`),
 			"MEDICAL", 0.85,
 		),
 		// BMI values (context-triggered)
 		NewRegexScanner(
 			regexp.MustCompile(`(?i)(?:BMI|Body Mass Index)[:\s]+(\d{2}(?:[.,]\d{1,2})?)`),
+			"MEDICAL", 0.85,
+			WithExtractGroup(1),
+		),
+		// ICD-10 codes standalone in parentheses: (I21.0), (E11.65)
+		NewRegexScanner(
+			regexp.MustCompile(`\(([A-Z]\d{2}(?:\.\d{1,4})?)\)`),
 			"MEDICAL", 0.85,
 			WithExtractGroup(1),
 		),
@@ -166,10 +172,31 @@ func idNumberScanners() []Scanner {
 			"ID_NUMBER", 0.85,
 			WithExtractGroup(1),
 		),
-		// EU VAT numbers: 2-letter country code + 8-12 alphanumeric
+		// EU VAT numbers: 2-letter country code + 8-12 alphanumeric (must contain at least one digit)
 		NewRegexScanner(
 			regexp.MustCompile(`\b(AT|BE|BG|CY|CZ|DE|DK|EE|EL|ES|FI|FR|HR|HU|IE|IT|LT|LU|LV|MT|NL|PL|PT|RO|SE|SI|SK)[A-Z0-9]{8,12}\b`),
 			"ID_NUMBER", 0.85,
+			WithValidator(func(s string) bool {
+				// Must contain at least one digit after country code to avoid matching words like ITALIENISCHES.
+				for _, r := range s[2:] {
+					if r >= '0' && r <= '9' {
+						return true
+					}
+				}
+				return false
+			}),
+		),
+		// German Versichertennummer (insurance number, context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Versichertennummer|Versicherten-?Nr\.?|Versicherungsnr\.?)[:\s]+([A-Z]?\d{6,12})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// German Rentenversicherungsnummer (pension number, context-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Rentenversicherungsnr\.?|Rentenversicherungsnummer|RVNR)[:\s]+(\d{2}\s?\d{6}\s?[A-Z]\s?\d{3})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
 		),
 	}
 }
@@ -180,27 +207,30 @@ func orgScanners() []Scanner {
 	// Name part for corporate names: allow abbreviations (2-6 uppercase) alongside normal names.
 	corpNamePart := `(?:[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ]{2,6}|` + nameComponent + `)(?:-` + nameComponent + `)?`
 
+	// Use [ \t]+ instead of \s+ to prevent matching across newlines.
+	sp := `[ \t]+`
+
 	// Corporate suffixes (German)
-	corpDE := corpNamePart + `(?:\s+` + corpNamePart + `)*\s+(?:GmbH|AG|SE|KG|OHG|KGaA|UG|e\.G\.|e\.V\.)\b`
+	corpDE := corpNamePart + `(?:` + sp + corpNamePart + `)*` + sp + `(?:GmbH|AG|SE|KG|OHG|KGaA|UG|e\.G\.|e\.V\.)\b`
 	// Corporate suffixes (International)
-	corpIntl := corpNamePart + `(?:\s+` + corpNamePart + `)*\s+(?:Ltd|Inc|Corp|LLC|PLC|SA|SAS|SARL|SpA|SRL|BV|NV)\.?\b`
+	corpIntl := corpNamePart + `(?:` + sp + corpNamePart + `)*` + sp + `(?:Ltd|Inc|Corp|LLC|PLC|SA|SAS|SARL|SpA|SRL|BV|NV)\.?\b`
 	// German institutions: Universitätsklinikum/Uniklinik/Universität/Klinikum + Name
-	deInstitution := `(?:Universitätsklinikum|Uniklinik|Universität|Klinikum)\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	deInstitution := `(?:Universitätsklinikum|Uniklinik|Universität|Klinikum)` + sp + namePattern + `(?:` + sp + namePattern + `)*`
 	// Klinik + preposition + Name
-	klinikPrep := `Klinik\s+(?:am|für|an\s+der|im)\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	klinikPrep := `Klinik` + sp + `(?:am|für|an` + sp + `der|im)` + sp + namePattern + `(?:` + sp + namePattern + `)*`
 	// French hospitals
-	frHospital := `(?:Hôpital|CHU)\s+` + namePattern + `(?:[\s\-]+` + namePattern + `)*`
+	frHospital := `(?:Hôpital|CHU)` + sp + namePattern + `(?:[ \t\-]+` + namePattern + `)*`
 	// Italian hospitals
-	itHospital := `(?:Ospedale|Policlinico)\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	itHospital := `(?:Ospedale|Policlinico)` + sp + namePattern + `(?:` + sp + namePattern + `)*`
 	// Spanish hospitals
-	esHospital := `Hospital\s+` + namePattern + `(?:\s+` + namePattern + `)*`
+	esHospital := `Hospital` + sp + namePattern + `(?:` + sp + namePattern + `)*`
 	// German insurance: AOK + Name
-	aok := `AOK\s+` + namePattern
+	aok := `AOK` + sp + namePattern
 	// German government: Deutsche Rentenversicherung (+ optional Name)
-	drv := `Deutsche\s+Rentenversicherung(?:\s+` + namePattern + `)?`
+	drv := `Deutsche` + sp + `Rentenversicherung(?:` + sp + namePattern + `)?`
 	// University medical centers: Name UMC | UMC Name
-	umcSuffix := namePattern + `\s+UMC`
-	umcPrefix := `UMC\s+` + namePattern
+	umcSuffix := namePattern + sp + `UMC`
+	umcPrefix := `UMC` + sp + namePattern
 
 	return []Scanner{
 		NewRegexScanner(regexp.MustCompile(corpDE), "ORG", 0.90),
@@ -241,35 +271,54 @@ func macAddressScanners() []Scanner {
 // Hyphenated names supported: Jean-Pierre, Müller-Schmidt.
 const nameComponent = `[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ][a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþß]+`
 const namePattern = nameComponent + `(?:-` + nameComponent + `)?`
-const fullName = namePattern + `\s+` + namePattern
+
+// Name particles for multi-part surnames (de Groot, van der Berg, von Stein, etc.)
+const nameParticle = `(?:de|van|der|von|di|del|della|le|la|da|dos|das|du|ten|ter|het)`
+
+// Full name: 2-4 name components with optional particles between them.
+const fullName = namePattern + `(?:[ \t]+(?:` + nameParticle + `[ \t]+)*` + namePattern + `){1,3}`
 
 func personScanners() []Scanner {
 	// Context-triggered: keyword + CapFirst CapLast
+	// Longer/more specific patterns first to avoid partial matches.
 	triggers := []string{
-		// German
-		`Herr`, `Frau`, `Patient`, `Patientin`, `Kollege`, `Kollegin`,
-		`Dr\.`, `Prof\.`, `mein Freund`, `meine Freundin`,
+		// Multi-word triggers first
+		`Dr\.\s?med\.`, `de\s+heer`,
+		`mein Freund`, `meine Freundin`,
 		`meinen Patienten`, `meiner Patientin`,
+		`my friend`, `my colleague`, `my patient`,
+		`mon ami`, `mon amie`,
+		// German role triggers
+		`Antragsteller(?:in)?`, `Sachbearbeiter(?:in)?`, `Bearbeiter(?:in)?`,
+		`Konsiliarius`,
+		// Titles (more specific first)
+		`Dott\.?\s?ssa`, `Dott\.?`, `Dra\.?`,
+		`Prof\.?`, `Dr\.?`,
+		// German
+		`Herr`, `Frau`, `Patient(?:in)?`, `Kollege`, `Kollegin`,
 		// French
-		`Monsieur`, `Madame`, `Mademoiselle`, `mon ami`, `mon amie`,
+		`Monsieur`, `Madame`, `Mademoiselle`,
 		// English
-		`Mr\.?`, `Mrs\.?`, `Ms\.?`, `Dr\.?`, `Prof\.?`,
-		`my friend`, `my colleague`, `my patient`, `colleague`,
+		`Mr\.?`, `Mrs\.?`, `Ms\.?`, `colleague`,
 		// Dutch
 		`Meneer`, `Mevrouw`,
 		// Italian
-		`Signor`, `Signora`,
+		`Signor(?:a)?`,
 		// Spanish
-		`Señor`, `Señora`,
+		`Señor(?:a)?`,
 	}
 
 	triggerGroup := `(?:` + strings.Join(triggers, `|`) + `)`
 	// Use (?i:...) only for the trigger group, keep name pattern case-sensitive.
-	contextPattern := `(?i:` + triggerGroup + `)\s+(` + fullName + `)`
+	// Allow optional colon/comma between trigger and name (e.g. "Antragsteller: Thomas Schmidt").
+	contextPattern := `(?i:` + triggerGroup + `)[: \t]+(` + fullName + `)`
 
 	// Verb-triggered: "told/asked/called/emailed Name Name"
 	verbs := `(?i:told|asked|called|emailed|contacted|met|visited|informed)`
-	verbPattern := verbs + `\s+(` + fullName + `)`
+	verbPattern := verbs + `[ \t]+(` + fullName + `)`
+
+	// Maiden name: "geb. Müller", "geboren Weber"
+	maidenPattern := `(?i:geb(?:oren(?:e)?)?\.)[ \t]+(` + namePattern + `)`
 
 	return []Scanner{
 		NewRegexScanner(
@@ -279,6 +328,11 @@ func personScanners() []Scanner {
 		),
 		NewRegexScanner(
 			regexp.MustCompile(verbPattern),
+			"PERSON", 0.85,
+			WithExtractGroup(1),
+		),
+		NewRegexScanner(
+			regexp.MustCompile(maidenPattern),
 			"PERSON", 0.85,
 			WithExtractGroup(1),
 		),
@@ -319,13 +373,14 @@ func phoneNotInIBAN(fullText string, start, end int) bool {
 func phoneScanners() []Scanner {
 	// International format with + prefix: +49, +43, +41, +33, etc.
 	// Supports separators: space, dash, dot, or none.
-	intl := `\+(?:49|43|41|33|39|34|31|32|351|48|46|358|45|47|353|44)\s?[\d][\d\s.\-]{6,14}\d`
+	// Use [ \t] instead of \s to prevent matching across newlines.
+	intl := `\+(?:49|43|41|33|39|34|31|32|351|48|46|358|45|47|353|44)[ \t]?[\d][\d \t.\-]{6,14}\d`
 
 	// Generic 00-prefix international
-	generic00 := `00\d{1,3}[\s.\-]?\d[\d\s.\-]{6,14}\d`
+	generic00 := `00\d{1,3}[ \t.\-]?\d[\d \t.\-]{6,14}\d`
 
 	// German local: 0XXX XXXXXXX
-	deLocal := `0[1-9]\d{1,4}[\s.\-/]?\d[\d\s.\-]{4,10}\d`
+	deLocal := `0[1-9]\d{1,4}[ \t.\-/]?\d[\d \t.\-]{4,10}\d`
 
 	return []Scanner{
 		NewRegexScanner(regexp.MustCompile(intl), "PHONE", 0.95, WithContextValidator(phoneNotInIBAN)),
@@ -528,26 +583,42 @@ func financialScanners() []Scanner {
 // --- ADDRESS ---
 
 func addressScanners() []Scanner {
-	// German: Straße/Str./Weg/Platz/Allee/Gasse + Hausnummer
-	deStreet := `(?:[A-ZÄÖÜ][a-zäöüß]+(?:straße|str\.|weg|platz|allee|gasse|ring|damm|ufer))\s+\d{1,4}[a-zA-Z]?`
+	// Use [ \t] instead of \s to prevent matching across newlines.
 
-	// German with postcode + city
-	deWithCity := deStreet + `(?:,\s*\d{5}\s+[A-ZÄÖÜ][a-zäöüß]+(?:\s+[A-ZÄÖÜ][a-zäöüß]+)?)?`
+	// German: Straße/Str./Weg/Platz/Allee/Gasse + Hausnummer (suffix form: Gartenstraße 27)
+	deStreetSuffix := `(?:[A-ZÄÖÜ][a-zäöüß]+(?:straße|str\.|weg|platz|allee|gasse|ring|damm|ufer|kai))[ \t]+\d{1,4}[a-zA-Z]?`
+
+	// German: separate-word street name (Berliner Straße 15)
+	deStreetSep := namePattern + `(?:[ \t]+` + namePattern + `)?[ \t]+(?:Straße|Str\.|Weg|Platz|Allee|Gasse|Ring|Damm|Ufer|Kai)[ \t]+\d{1,4}[a-zA-Z]?`
+
+	// German: hyphenated street names ending in suffix (Theodor-Stern-Kai 7)
+	deStreetHyphen := `(?:[A-ZÄÖÜ][a-zäöüß]+-)+(?:Straße|Str|Weg|Platz|Allee|Gasse|Ring|Damm|Ufer|Kai)[ \t]+\d{1,4}[a-zA-Z]?`
+
+	// City pattern: "Frankfurt", "Bad Homburg", "Frankfurt am Main"
+	cityWord := `[A-ZÄÖÜ][a-zäöüß]+`
+	cityPattern := cityWord + `(?:[ \t]+` + cityWord + `|[ \t]+[a-z]+[ \t]+` + cityWord + `)?`
+
+	// German with postcode + city (use [ \t] to prevent cross-line matching)
+	deWithCitySuffix := deStreetSuffix + `(?:,[ \t]*\d{5}[ \t]+` + cityPattern + `)?`
+	deWithCitySep := deStreetSep + `(?:,[ \t]*\d{5}[ \t]+` + cityPattern + `)?`
+	deWithCityHyphen := deStreetHyphen + `(?:,[ \t]*\d{5}[ \t]+` + cityPattern + `)?`
 
 	// French: rue/avenue/boulevard + number
-	frStreet := `\d{1,4},?\s+(?:rue|avenue|boulevard|place|chemin|impasse)\s+(?:de\s+(?:la\s+)?|du\s+|des\s+|l')?[A-ZÀ-Ü][a-zà-ÿ]+(?:\s+[A-ZÀ-Ü][a-zà-ÿ]+)*`
+	frStreet := `\d{1,4},?[ \t]+(?:rue|avenue|boulevard|place|chemin|impasse)[ \t]+(?:de[ \t]+(?:la[ \t]+)?|du[ \t]+|des[ \t]+|l')?[A-ZÀ-Ü][a-zà-ÿ]+(?:[ \t]+[A-ZÀ-Ü][a-zà-ÿ]+)*`
 
-	// Italian: via/piazza/corso + name + number
-	itStreet := `(?:[Vv]ia|[Pp]iazza|[Cc]orso|[Vv]iale)\s+[A-ZÀ-Ü][a-zà-ÿ]+(?:\s+[A-ZÀ-Ü][a-zà-ÿ]+)*\s+\d{1,4}`
+	// Italian: via/piazza/corso + name + number (with articles: del, della, etc.)
+	itStreet := `(?:[Vv]ia|[Pp]iazza|[Cc]orso|[Vv]iale)[ \t]+(?:(?:del|della|dello|dei|degli|delle|di)[ \t]+)?[A-ZÀ-Ü][a-zà-ÿ]+(?:[ \t]+[A-ZÀ-Ü][a-zà-ÿ]+)*[ \t]+\d{1,4}`
 
-	// Spanish: calle/avenida/plaza
-	esStreet := `(?:[Cc]alle|[Aa]venida|[Pp]laza)\s+(?:de\s+(?:la\s+)?|del\s+)?[A-ZÀ-Ü][a-zà-ÿ]+(?:\s+[A-ZÀ-Ü][a-zà-ÿ]+)*\s+\d{1,4}`
+	// Spanish: calle/avenida/plaza/paseo
+	esStreet := `(?:[Cc]alle|[Aa]venida|[Pp]laza|[Pp]aseo)[ \t]+(?:de[ \t]+(?:la[ \t]+)?|del[ \t]+)?[A-ZÀ-Ü][a-zà-ÿ]+(?:[ \t]+[A-ZÀ-Ü][a-zà-ÿ]+)*[ \t]+\d{1,4}`
 
-	// Dutch: straat/laan/weg/plein + number
-	nlStreet := `[A-ZÄÖÜ][a-zäöüß]+(?:straat|laan|weg|plein|gracht|kade|singel)\s+\d{1,4}`
+	// Dutch: straat/laan/weg/plein/gracht/dreef + number
+	nlStreet := `[A-ZÄÖÜ][a-zäöüß]+(?:straat|laan|weg|plein|gracht|kade|singel|dreef)[ \t]+\d{1,4}`
 
 	return []Scanner{
-		NewRegexScanner(regexp.MustCompile(deWithCity), "ADDRESS", 0.85),
+		NewRegexScanner(regexp.MustCompile(deWithCitySuffix), "ADDRESS", 0.85),
+		NewRegexScanner(regexp.MustCompile(deWithCitySep), "ADDRESS", 0.85),
+		NewRegexScanner(regexp.MustCompile(deWithCityHyphen), "ADDRESS", 0.85),
 		NewRegexScanner(regexp.MustCompile(frStreet), "ADDRESS", 0.85),
 		NewRegexScanner(regexp.MustCompile(itStreet), "ADDRESS", 0.85),
 		NewRegexScanner(regexp.MustCompile(esStreet), "ADDRESS", 0.85),
@@ -570,7 +641,7 @@ func secretScanners() []Scanner {
 		// AWS access key
 		{`AKIA[0-9A-Z]{16}`, 0.99},
 		// GitHub
-		{`gh[patos]_[A-Za-z0-9]{36}`, 0.99},
+		{`gh[patos]_[A-Za-z0-9]{30,}`, 0.99},
 		// Slack
 		{`xox[bp]-[0-9]{10,}-[A-Za-z0-9\-]+`, 0.99},
 		// Bearer token

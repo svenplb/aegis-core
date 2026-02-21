@@ -1,0 +1,44 @@
+# Compiled binaries
+bin/
+aegis
+aegis-scan
+aegis-server
+*.exe
+.claude/
+
+# Go build cache
+*.o
+*.a
+*.so
+
+# Test and coverage
+*.test
+*.out
+coverage.html
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Config (keep example, ignore local)
+config.yaml
+!config.example.yaml
+
+# Local notes
+info.txt
+
+# Benchmark test data with fake secrets (generated locally via gen_testdata.py)
+testdata/benchmark/

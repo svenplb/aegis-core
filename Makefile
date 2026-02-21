@@ -1,4 +1,4 @@
-.PHONY: build build-scan build-tui build-server test lint clean docker-server
+.PHONY: build build-scan build-tui build-server test lint clean docker-server benchmark-accuracy
 
 BINARY_SCAN   := bin/aegis-scan
 BINARY_TUI    := bin/aegis
@@ -26,6 +26,9 @@ test-race:
 
 bench:
 	go test ./internal/scanner/ -bench=. -benchmem
+
+benchmark-accuracy:
+	go test ./internal/scanner/ -run TestBenchmark -v -count=1
 
 lint:
 	go vet ./...

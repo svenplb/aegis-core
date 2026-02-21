@@ -912,6 +912,171 @@ func TestOrganization_TrueNegatives(t *testing.T) {
 	}
 }
 
+// --- ORG CamelCase + Ampersand tests ---
+
+func TestOrgCamelCase(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"SynergyTech AG", "Vertrag mit SynergyTech AG unterzeichnet.", "SynergyTech AG"},
+		{"MediaMarkt GmbH", "Einkauf bei MediaMarkt GmbH.", "MediaMarkt GmbH"},
+		{"PowerPoint Corp", "Licensed by PowerPoint Corp.", "PowerPoint Corp"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == "ORG" && e.Text == tc.want {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("ORG not found in %q: wanted %q, got %v", tc.input, tc.want, entities)
+			}
+		})
+	}
+}
+
+func TestOrgAmpersand(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"Müller & Partner GmbH", "Kontakt mit Müller & Partner GmbH.", "Müller & Partner GmbH"},
+		{"Schmidt & Weber AG", "Bericht von Schmidt & Weber AG.", "Schmidt & Weber AG"},
+		{"Smith & Jones Ltd", "Filed by Smith & Jones Ltd.", "Smith & Jones Ltd"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == "ORG" && e.Text == tc.want {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("ORG not found in %q: wanted %q, got %v", tc.input, tc.want, entities)
+			}
+		})
+	}
+}
+
+// --- PERSON new trigger tests ---
+
+func TestPersonWifeTrigger(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"his wife EN", "His wife Maria Schmidt called.", "Maria Schmidt"},
+		{"her husband EN", "Her husband Thomas Weber arrived.", "Thomas Weber"},
+		{"seine Frau DE", "Seine Frau Anna Berger ist hier.", "Anna Berger"},
+		{"ihr Mann DE", "Ihr Mann Karl Fischer kam.", "Karl Fischer"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == "PERSON" && e.Text == tc.want {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("PERSON not found in %q: wanted %q, got %v", tc.input, tc.want, entities)
+			}
+		})
+	}
+}
+
+func TestPersonEmployeeTrigger(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"Employee EN", "Employee Lisa Bergmann reported.", "Lisa Bergmann"},
+		{"Mitarbeiter DE", "Mitarbeiter Hans Gruber ist krank.", "Hans Gruber"},
+		{"Supervisor EN", "Supervisor John Miller approved.", "John Miller"},
+		{"plaintiff EN", "The plaintiff Anna Weber filed.", "Anna Weber"},
+		{"defendant EN", "The defendant Karl Schmidt denied.", "Karl Schmidt"},
+		{"witness EN", "The witness Maria Braun testified.", "Maria Braun"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == "PERSON" && e.Text == tc.want {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("PERSON not found in %q: wanted %q, got %v", tc.input, tc.want, entities)
+			}
+		})
+	}
+}
+
+// --- DATE US format tests ---
+
+func TestDateUSFormat(t *testing.T) {
+	s := DefaultScanner(nil)
+	cases := []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"unambiguous US", "Filed on 03/14/2024.", "03/14/2024"},
+		{"month 12 day 25", "Christmas 12/25/2024.", "12/25/2024"},
+		{"month 01 day 31", "Due 01/31/2025.", "01/31/2025"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			entities := s.Scan(tc.input)
+			found := false
+			for _, e := range entities {
+				if e.Type == "DATE" && e.Text == tc.want {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Errorf("DATE not found in %q: wanted %q, got %v", tc.input, tc.want, entities)
+			}
+		})
+	}
+}
+
+func TestDateUSAmbiguous(t *testing.T) {
+	s := DefaultScanner(nil)
+	// Day ≤ 12 is ambiguous — should NOT match as US date.
+	// Note: 03/05/2024 will match as EU date (DD/MM/YYYY) via dateCore, which is fine.
+	// We just verify it doesn't double-match with score 0.85.
+	input := "Date: 03/05/2024"
+	entities := s.Scan(input)
+	for _, e := range entities {
+		if e.Type == "DATE" && e.Score < 0.90 {
+			// US date pattern has score 0.85 — this would indicate an ambiguous US match
+			t.Errorf("Ambiguous date matched as US format in %q: got %v", input, e)
+		}
+	}
+}
+
 // --- Composite scanner tests ---
 
 func TestOverlapDedup(t *testing.T) {

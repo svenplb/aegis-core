@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/svenplb/aegis-core/internal/scanner"
+	"golang.org/x/text/unicode/norm"
 )
 
 // RedactResult holds the output of a Redact call.
@@ -20,6 +21,9 @@ type RedactResult struct {
 // returns the sanitised text together with the mapping table.
 func Redact(text string, entities []scanner.Entity) RedactResult {
 	start := time.Now()
+
+	// NFC-normalize so byte offsets from the scanner (which also NFC-normalizes) match.
+	text = norm.NFC.String(text)
 
 	if len(entities) == 0 {
 		return RedactResult{

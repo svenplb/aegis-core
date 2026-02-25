@@ -26,6 +26,7 @@ func BuiltinScanners() []Scanner {
 	scanners = append(scanners, medicalScanners()...)
 	scanners = append(scanners, ageScanners()...)
 	scanners = append(scanners, idNumberScanners()...)
+	scanners = append(scanners, taxNumberScanners()...)
 	scanners = append(scanners, orgScanners()...)
 	scanners = append(scanners, financialScanners()...)
 	scanners = append(scanners, addressScanners()...)
@@ -866,6 +867,10 @@ func dateScanners() []Scanner {
 	ptMonths := `(?:janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)`
 	ptDateWritten := `\d{1,2}[ \t]+(?:de[ \t]+)?` + ptMonths + `[ \t]+(?:de[ \t]+)?(?:19|20)\d{2}`
 
+	// Month + short/full year (context-triggered): "Leistungszeitraum: November 25"
+	allMonths := `(?:` + enMonths + `|` + deMonths + `|` + frMonths + `|` + esMonths + `|` + itMonths + `|` + nlMonths + `|` + plMonths + `|` + seMonths + `|` + ptMonths + `)`
+	monthYear := `(?i)(?:Leistungszeitraum|Abrechnungszeitraum|Zeitraum|Abrechnungsmonat|Billing\s+period|Period|Mois)[:\s]+(` + allMonths + `[ \t]+\d{2,4})`
+
 	// ISO format: YYYY-MM-DD
 	dateISO := `\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b`
 
@@ -884,6 +889,11 @@ func dateScanners() []Scanner {
 		NewRegexScanner(regexp.MustCompile(plDateWritten), "DATE", 0.85),
 		NewRegexScanner(regexp.MustCompile(seDateWritten), "DATE", 0.85),
 		NewRegexScanner(regexp.MustCompile(ptDateWritten), "DATE", 0.85),
+		NewRegexScanner(
+			regexp.MustCompile(monthYear),
+			"DATE", 0.85,
+			WithExtractGroup(1),
+		),
 		NewRegexScanner(regexp.MustCompile(dateISO), "DATE", 0.90),
 		NewRegexScanner(
 			regexp.MustCompile(dateUS),
@@ -966,6 +976,11 @@ func financialScanners() []Scanner {
 	eurDotPrefix := `€\s?\d{1,3}(?:,\d{3})*\.\d{2}`
 	eurDotSuffix := `\d{1,3}(?:,\d{3})*\.\d{2}\s?€`
 
+	// EUR with thousand separator but no decimals: €9.500, 9.500 €
+	// Requires at least one dot-separated group to distinguish from bare amounts.
+	eurThousandNodecPrefix := `€\s?\d{1,3}(?:\.\d{3})+\b`
+	eurThousandNodecSuffix := `\b\d{1,3}(?:\.\d{3})+\s?€`
+
 	// European amounts WITH thousand separator but no symbol: 2.544,70, 1.250,00
 	// Distinctive enough to not need context (dot-thousand + comma-decimal + exactly 2 decimals).
 	eurBareThousands := `\b\d{1,3}(?:\.\d{3})+,\d{2}\b`
@@ -1010,6 +1025,8 @@ func financialScanners() []Scanner {
 		NewRegexScanner(regexp.MustCompile(hufSuffix), "FINANCIAL", 0.90),
 		NewRegexScanner(regexp.MustCompile(ronSuffix), "FINANCIAL", 0.90),
 		NewRegexScanner(regexp.MustCompile(sekSuffix), "FINANCIAL", 0.90),
+		NewRegexScanner(regexp.MustCompile(eurThousandNodecPrefix), "FINANCIAL", 0.85),
+		NewRegexScanner(regexp.MustCompile(eurThousandNodecSuffix), "FINANCIAL", 0.85),
 		NewRegexScanner(regexp.MustCompile(eurBareThousands), "FINANCIAL", 0.85),
 		NewRegexScanner(
 			regexp.MustCompile(eurBare),
@@ -1417,4 +1434,163 @@ func secretScanners() []Scanner {
 		))
 	}
 	return scanners
+}
+
+// --- TAX NUMBERS ---
+
+// taxNumberScanners returns context-triggered scanners for EU and European tax/business numbers.
+// All patterns require a keyword prefix to avoid false positives on bare digit sequences.
+func taxNumberScanners() []Scanner {
+	return []Scanner{
+		// DE: Steuernummer (143/262/10560)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Steuernummer|Steuer-Nr\.?|St\.?-?Nr\.?)[:\s]+(\d{2,3}/\d{3}/\d{4,5})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// AT: Steuernummer (12-345/6789 or 123456789)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Steuernummer|Steuer-Nr\.?|Abgabenkontonr\.?)[:\s]+(\d{2}-?\d{3}/?-?\d{4})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// FR: Numéro fiscal (13 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:numéro\s+fiscal|num[ée]ro\s+fiscal|SPI|n°\s*fiscal)[:\s]+(\d{13})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// IT: Partita IVA (11 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Partita\s+IVA|P\.?\s*IVA)[:\s]+(\d{11})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// ES: NIF/CIF (letter + 7 digits + alphanumeric)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:NIF|CIF|N\.I\.F\.)[:\s]+([A-Z]\d{7}[A-Z0-9])\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// PL: NIP (XXX-XXX-XX-XX or 10 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:NIP|N\.I\.P\.)[:\s]+(\d{3}-?\d{3}-?\d{2}-?\d{2})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// HU: Adószám (XXXXXXXX-X-XX)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:adószám|adóazonosító\s+jel)[:\s]+(\d{8}-?\d-?\d{2})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// BE: Ondernemingsnummer (XXXX.XXX.XXX or 10 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:ondernemingsnummer|numéro\s+d'entreprise|KBO|BCE)[:\s]+(\d{4}\.?\d{3}\.?\d{3})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// SK: DIČ / IČ DPH (10 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:DIČ|IČ\s+DPH)[:\s]+(\d{10})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// SI: Davčna številka (8 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:davčna\s+številka|ID\s+za\s+DDV)[:\s]+(\d{8})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// SE: Organisationsnummer (XXXXXX-XXXX or 10 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:organisationsnummer|org\.?\s*nr\.?)[:\s]+(\d{6}-?\d{4})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// DK: CVR / SE-nummer (8 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:CVR|SE-nummer)[:\s]+(\d{8})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// FI: Y-tunnus (XXXXXXX-X)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Y-tunnus|FO-nummer)[:\s]+(\d{7}-?\d)\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// NO: Organisasjonsnummer (9 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:organisasjonsnummer|org\.?\s*nr\.?)[:\s]+(\d{9})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// RO: CUI / CIF / Cod fiscal (2-10 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:CUI|CIF|cod\s+fiscal)[:\s]+(\d{2,10})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// BG: BULSTAT / ЕИК / ИН (9-13 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:BULSTAT|ЕИК|ИН)[:\s]+(\d{9,13})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// GR: ΑΦΜ / AFM / TIN (9 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:ΑΦΜ|AFM)[:\s]+(\d{9})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// LU: Matricule national (11-13 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:matricule\s+national|numéro\s+d'identification)[:\s]+(\d{11,13})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// CY: TIC / tax identification (8 digits + letter)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:TIC|tax\s+identification)[:\s]+(\d{8}[A-Z])\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// MT: TIN (7-9 digits, keyword-triggered)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:Malta\s+TIN|MT\s+TIN)[:\s]+(\d{7,9})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// EE: Registrikood / KMKR (8 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:registrikood|KMKR)[:\s]+(\d{8})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// LV: Reģistrācijas numurs / PVN (11 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:reģistrācijas\s+numurs|PVN)[:\s]+(\d{11})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// LT: Įmonės kodas / PVM (7-12 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:įmonės\s+kodas|PVM)[:\s]+(\d{7,12})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+		// CH: UID (CHE-XXX.XXX.XXX)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:UID|Unternehmens-ID)[:\s]+(CHE-?\d{3}\.?\d{3}\.?\d{3})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// GB: UTR / Unique Taxpayer Reference (10 digits)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)(?:UTR|Unique\s+Taxpayer\s+Reference|tax\s+reference)[:\s]+(\d{10})\b`),
+			"ID_NUMBER", 0.85,
+			WithExtractGroup(1),
+		),
+	}
 }

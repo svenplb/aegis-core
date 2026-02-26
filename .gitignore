@@ -1,8 +1,8 @@
 # Compiled binaries
 bin/
-aegis
-aegis-scan
-aegis-server
+/aegis
+/aegis-scan
+/aegis-server
 *.exe
 .claude/
 
@@ -39,6 +39,10 @@ config.yaml
 
 # Local notes
 info.txt
+
+# NLP models (downloaded/trained locally)
+models/
+*.onnx
 
 # Benchmark test data with fake secrets (generated locally via gen_testdata.py)
 testdata/benchmark/

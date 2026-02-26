@@ -96,6 +96,7 @@ func writeError(w http.ResponseWriter, status int, msg string) {
 func newMux(sc *scanner.CompositeScanner) *http.ServeMux {
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/", handleUI)
 	mux.HandleFunc("/health", handleHealth)
 	mux.HandleFunc("/api/scan", handleScan(sc))
 	mux.HandleFunc("/api/redact", handleRedact(sc))
@@ -219,24 +220,31 @@ func main() {
 		port = *portFlag
 	}
 
-	// Load allowlist from config if provided.
-	var allowlist []*regexp.Regexp
+	// Load configuration.
+	var cfg *config.Config
 	if *configFlag != "" {
-		cfg, err := config.Load(*configFlag)
+		var err error
+		cfg, err = config.Load(*configFlag)
 		if err != nil {
 			log.Fatalf("failed to load config: %v", err)
 		}
-		for _, pattern := range cfg.Scanner.Allowlist {
-			re, err := regexp.Compile(pattern)
-			if err != nil {
-				log.Fatalf("invalid allowlist pattern %q: %v", pattern, err)
-			}
-			allowlist = append(allowlist, re)
-		}
+	} else {
+		cfg = config.DefaultConfig()
 	}
 
-	// Create scanner once at startup (thread-safe for concurrent use).
-	sc := scanner.DefaultScanner(allowlist)
+	// Build allowlist from config.
+	var allowlist []*regexp.Regexp
+	for _, pattern := range cfg.Scanner.Allowlist {
+		re, err := regexp.Compile(pattern)
+		if err != nil {
+			log.Fatalf("invalid allowlist pattern %q: %v", pattern, err)
+		}
+		allowlist = append(allowlist, re)
+	}
+
+	// Create scanner (with optional NLP support via build tags).
+	sc, cleanup := initScanner(cfg, allowlist)
+	defer cleanup()
 
 	mux := newMux(sc)
 	handler := corsMiddleware(mux)

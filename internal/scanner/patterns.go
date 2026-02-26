@@ -27,6 +27,7 @@ func BuiltinScanners() []Scanner {
 	scanners = append(scanners, ageScanners()...)
 	scanners = append(scanners, idNumberScanners()...)
 	scanners = append(scanners, taxNumberScanners()...)
+	scanners = append(scanners, businessIDScanners()...)
 	scanners = append(scanners, orgScanners()...)
 	scanners = append(scanners, financialScanners()...)
 	scanners = append(scanners, addressScanners()...)
@@ -1591,6 +1592,259 @@ func taxNumberScanners() []Scanner {
 			regexp.MustCompile(`(?i)(?:UTR|Unique\s+Taxpayer\s+Reference|tax\s+reference)[:\s]+(\d{10})\b`),
 			"ID_NUMBER", 0.85,
 			WithExtractGroup(1),
+		),
+	}
+}
+
+// --- BUSINESS IDs (Customer, Employee, Contract, Salary, SEPA) ---
+
+// businessIDScanners returns context-triggered scanners for common business identifiers
+// across all EU languages. All patterns require a keyword to avoid false positives.
+func businessIDScanners() []Scanner {
+	// --- Customer Number ---
+	customerKW := `(?:` +
+		// DE
+		`Kundennummer|Kunden-Nr\.?|Kundenkonto|Kd\.?-?Nr\.?|Kundenkennung` +
+		// EN
+		`|Customer\s?Number|Customer\s?No\.?|Customer\s?ID|Client\s?ID|Client\s?No\.?|Client\s?Number|Account\s?Number|Account\s?No\.?` +
+		// FR
+		`|Numéro\s+(?:de\s+)?client|N°\s*client|Code\s+client` +
+		// IT
+		`|Numero\s+cliente|Cod(?:ice)?\s+cliente` +
+		// ES/PT/GL
+		`|Número\s+(?:de\s+)?cliente|Cód(?:igo)?\s+(?:de\s+)?cliente` +
+		// NL
+		`|Klantnummer|Klant-Nr\.?|Relatienummer` +
+		// PL
+		`|Numer\s+klienta|Nr\s+klienta` +
+		// CZ
+		`|Číslo\s+zákazníka|Číslo\s+klienta` +
+		// SK
+		`|Zákaznícke\s+číslo` +
+		// HU
+		`|Ügyfélszám|Ügyfél-?azonosító` +
+		// RO
+		`|Număr\s+client|Cod\s+client` +
+		// BG
+		`|Клиентски\s+номер` +
+		// HR
+		`|Broj\s+kupca|Šifra\s+kupca` +
+		// SI
+		`|Številka\s+stranke|Šifra\s+stranke` +
+		// EL
+		`|Αριθμός\s+πελάτη|Κωδικός\s+πελάτη` +
+		// SE/NO/DK
+		`|Kundnummer|Kund-Nr\.?|Kundenummer|Kunde-Nr\.?` +
+		// FI
+		`|Asiakasnumero|Asiakastunnus` +
+		// EE
+		`|Kliendikood` +
+		// LV
+		`|Klienta\s+numurs|Klienta\s+Nr\.?` +
+		// LT
+		`|Kliento\s+numeris|Kliento\s+Nr\.?` +
+		// GA
+		`|Uimhir\s+chustaiméara` +
+		// MT
+		`|Numru\s+tal-klijent` +
+		`)`
+
+	// --- Employee Number ---
+	employeeKW := `(?:` +
+		// DE
+		`Mitarbeiternummer|Mitarbeiter-Nr\.?|Personalnummer|Personal-Nr\.?|Pers\.?-?Nr\.?|Dienstnummer` +
+		// EN
+		`|Employee\s?Number|Employee\s?No\.?|Employee\s?ID|Staff\s?ID|Staff\s?No\.?|Staff\s?Number|Personnel\s?Number|Personnel\s?No\.?|Personnel\s?ID` +
+		// FR
+		`|Numéro\s+(?:de\s+)?salarié|Numéro\s+d['']employé|Matricule|N°\s*(?:de\s+)?salarié|N°\s*matricule` +
+		// IT
+		`|Numero\s+(?:di\s+)?dipendente|Matricola` +
+		// ES
+		`|Número\s+(?:de\s+)?empleado|Número\s+(?:de\s+)?personal` +
+		// PT
+		`|Número\s+(?:de\s+)?funcionário` +
+		// NL
+		`|Personeelsnummer|Werknemer-?Nr\.?|Medewerkersnummer` +
+		// PL
+		`|Numer\s+pracownika|Nr\s+pracownika` +
+		// CZ
+		`|Číslo\s+zaměstnance|Osobní\s+číslo` +
+		// SK
+		`|Číslo\s+zamestnanca` +
+		// HU
+		`|Alkalmazotti\s+szám|Dolgozói\s+szám` +
+		// RO
+		`|Număr\s+(?:de\s+)?angajat|Număr\s+(?:de\s+)?personal` +
+		// BG
+		`|Служебен\s+номер` +
+		// HR
+		`|Matični\s+broj|Broj\s+zaposlenika` +
+		// SI
+		`|Matična\s+številka|Številka\s+zaposlenega` +
+		// EL
+		`|Αριθμός\s+(?:μητρώου\s+)?υπαλλήλου|Αριθμός\s+μητρώου` +
+		// SE
+		`|Anställningsnummer|Anställnings-?Nr\.?` +
+		// DA
+		`|Medarbejdernummer|Medarbejder-Nr\.?` +
+		// NO
+		`|Ansattnummer|Ansatt-?Nr\.?` +
+		// FI
+		`|Henkilönumero` +
+		// EE
+		`|Töötaja\s+kood` +
+		// LV
+		`|Darbinieka\s+numurs|Darbinieka\s+Nr\.?` +
+		// LT
+		`|Darbuotojo\s+numeris|Darbuotojo\s+Nr\.?` +
+		// GA
+		`|Uimhir\s+fhostaí` +
+		// MT
+		`|Numru\s+tal-impjegat` +
+		// LB
+		`|Matrikelnummer` +
+		`)`
+
+	// --- Contract Number ---
+	contractKW := `(?:` +
+		// DE
+		`Vertragsnummer|Vertrags-?Nr\.?|Vertragsnr\.?` +
+		// EN
+		`|Contract\s?Number|Contract\s?No\.?|Contract\s?ID|Agreement\s?Number|Agreement\s?No\.?` +
+		// FR
+		`|Numéro\s+(?:de\s+)?contrat|N°\s*(?:de\s+)?contrat|Réf(?:érence)?\s+contrat` +
+		// IT
+		`|Numero\s+(?:di\s+)?contratto|Rif\.?\s+contratto` +
+		// ES/PT/GL
+		`|Número\s+(?:de\s+)?contrato|Ref\.?\s+contrato` +
+		// NL
+		`|Contractnummer|Contract-?Nr\.?|Overeenkomstnummer` +
+		// PL
+		`|Numer\s+umowy|Nr\s+umowy` +
+		// CZ
+		`|Číslo\s+smlouvy` +
+		// SK
+		`|Číslo\s+zmluvy` +
+		// HU
+		`|Szerződésszám` +
+		// RO
+		`|Număr\s+(?:de\s+)?contract` +
+		// BG
+		`|Номер\s+(?:на\s+)?договор` +
+		// HR
+		`|Broj\s+ugovora` +
+		// SI
+		`|Številka\s+pogodbe` +
+		// EL
+		`|Αριθμός\s+σύμβασης` +
+		// SE
+		`|Avtalsnummer|Avtals-?Nr\.?` +
+		// DA
+		`|Aftalenummer|Aftale-?Nr\.?` +
+		// NO
+		`|Kontraktnummer|Kontrakt-?Nr\.?` +
+		// FI
+		`|Sopimusnumero|Sopimus-?Nr\.?` +
+		// EE
+		`|Lepingu\s+number|Lepingu\s+Nr\.?` +
+		// LV
+		`|Līguma\s+numurs|Līguma\s+Nr\.?` +
+		// LT
+		`|Sutarties\s+numeris|Sutarties\s+Nr\.?` +
+		// GA
+		`|Uimhir\s+chonartha` +
+		// MT
+		`|Numru\s+tal-kuntratt` +
+		`)`
+
+	// --- Salary keywords (before an amount) ---
+	salaryKW := `(?:` +
+		// DE
+		`Bruttolohn|Bruttogehalt|Bruttoverdienst|Nettolohn|Nettogehalt|Nettoverdienst|Grundgehalt|Grundlohn|Stundenlohn|Stundensatz|Monatslohn|Monatsgehalt|Jahresgehalt|Jahresbrutto|Gesamtvergütung` +
+		// EN
+		`|Gross\s?salary|Gross\s?pay|Gross\s?wage|Net\s?salary|Net\s?pay|Net\s?wage|Base\s?salary|Base\s?pay|Hourly\s?rate|Hourly\s?wage|Annual\s?salary|Monthly\s?salary|Monthly\s?wage|Monthly\s?pay|Total\s?compensation` +
+		// FR
+		`|Salaire\s+brut|Salaire\s+net|Salaire\s+(?:de\s+)?base|Salaire\s+mensuel|Salaire\s+annuel|Taux\s+horaire|Rémunération\s+brute|Rémunération\s+nette` +
+		// IT
+		`|Stipendio\s+lordo|Stipendio\s+netto|Stipendio\s+base|Retribuzione\s+lorda|Retribuzione\s+netta|Paga\s+oraria|Paga\s+mensile` +
+		// ES
+		`|Salario\s+bruto|Salario\s+neto|Sueldo\s+bruto|Sueldo\s+neto|Sueldo\s+base|Salario\s+base|Salario\s+mensual|Salario\s+anual|Tarifa\s+horaria` +
+		// PT
+		`|Salário\s+bruto|Salário\s+líquido|Salário\s+base|Salário\s+mensal|Salário\s+anual` +
+		// NL
+		`|Brutoloon|Nettoloon|Bruto\s?salaris|Netto\s?salaris|Basissalaris|Basisloon|Uurloon|Maandloon|Maandsalaris|Jaarsalaris` +
+		// PL
+		`|Wynagrodzenie\s+brutto|Wynagrodzenie\s+netto|Płaca\s+zasadnicza|Stawka\s+godzinowa|Płaca\s+miesięczna` +
+		// CZ/SK
+		`|Hrubá\s+mzda|Čistá\s+mzda|Základní\s+mzda|Hodinová\s+sazba|Měsíční\s+mzda|Základná\s+mzda|Mesačná\s+mzda` +
+		// HU
+		`|Bruttó\s+bér|Nettó\s+bér|Alapbér|Órabér|Havi\s+bér|Éves\s+fizetés` +
+		// RO
+		`|Salariu\s+brut|Salariu\s+net|Salariu\s+(?:de\s+)?bază|Salariu\s+lunar|Tarif\s+orar` +
+		// BG
+		`|Брутна\s+заплата|Нетна\s+заплата|Основна\s+заплата|Месечна\s+заплата` +
+		// HR
+		`|Bruto\s+plaća|Neto\s+plaća|Osnovna\s+plaća|Satnica|Mjesečna\s+plaća` +
+		// SI
+		`|Bruto\s+plača|Neto\s+plača|Osnovna\s+plača|Urna\s+postavka|Mesečna\s+plača` +
+		// EL
+		`|Μικτός\s+μισθός|Καθαρός\s+μισθός|Βασικός\s+μισθός|Ωριαία\s+αμοιβή|Μηνιαίος\s+μισθός` +
+		// SE
+		`|Bruttolön|Nettolön|Grundlön|Timlön|Månadslön|Årslön` +
+		// DA
+		`|Bruttoløn|Nettoløn|Grundløn|Timeløn|Månedsløn|Årsløn` +
+		// NO
+		`|Bruttolønn|Nettolønn|Grunnlønn|Timelønn|Månedslønn|Årslønn` +
+		// FI
+		`|Bruttopalkka|Nettopalkka|Peruspalkka|Tuntipalkka|Kuukausipalkka|Vuosipalkka` +
+		// EE
+		`|Brutopalk|Netopalk|Põhipalk|Tunnitasu|Kuupalk` +
+		// LV
+		`|Bruto\s+alga|Neto\s+alga|Pamatalga|Stundas\s+likme|Mēneša\s+alga` +
+		// LT
+		`|Bruto\s+atlyginimas|Neto\s+atlyginimas|Bazinis\s+atlyginimas|Valandinis\s+atlygis|Mėnesinis\s+atlyginimas` +
+		`)`
+
+	// Amount pattern for salary: handles €1.500, 1.500,00 €, $2,500.00, bare 4500,00, 45000 SEK etc.
+	salaryAmount := `[€$£]?\s?\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{2})?\s?(?:€|EUR|USD|GBP|CHF|PLN|CZK|HUF|RON|SEK|NOK|DKK|kr\.?|zł|Kč|Ft|lei)?`
+	// Bare salary amount: handles numbers without thousand separators like "45000 SEK", "8500,00 PLN"
+	salaryBareAmount := `\d{3,7}(?:[.,]\d{2})?\s?(?:€|EUR|USD|GBP|CHF|PLN|CZK|HUF|RON|SEK|NOK|DKK|kr\.?|zł|Kč|Ft|lei)`
+
+	return []Scanner{
+		// Customer number: keyword + alphanumeric ID
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)`+customerKW+`[:\s]+([A-Za-z0-9][\w.\-/]{2,20})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// Employee number: keyword + alphanumeric ID
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)`+employeeKW+`[:\s]+([A-Za-z0-9][\w.\-/]{2,20})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// Contract number: keyword + alphanumeric ID
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)`+contractKW+`[:\s]+([A-Za-z0-9][\w.\-/]{2,20})\b`),
+			"ID_NUMBER", 0.90,
+			WithExtractGroup(1),
+		),
+		// Salary: keyword + amount with currency symbol (tagged as FINANCIAL)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)`+salaryKW+`[:\s]+(` + salaryAmount + `)`),
+			"FINANCIAL", 0.90,
+			WithExtractGroup(1),
+		),
+		// Salary: keyword + bare amount with currency suffix (45000 SEK, 8500,00 PLN)
+		NewRegexScanner(
+			regexp.MustCompile(`(?i)`+salaryKW+`[:\s]+(` + salaryBareAmount + `)`),
+			"FINANCIAL", 0.90,
+			WithExtractGroup(1),
+		),
+		// SEPA Creditor Reference (RF + check digits + reference, standalone)
+		NewRegexScanner(
+			regexp.MustCompile(`\bRF\d{2}[A-Z0-9]{1,21}\b`),
+			"FINANCIAL", 0.95,
 		),
 	}
 }

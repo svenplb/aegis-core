@@ -345,19 +345,19 @@ func idNumberScanners() []Scanner {
 		),
 		// Invoice/order/receipt with qualifier: "Invoice number X", "Order no. X"
 		NewRegexScanner(
-			regexp.MustCompile(`(?i)(?:Invoice|Rechnung|Bill|Receipt|Order|Reference|Bestell|Auftrags)\s*(?:number|no\.?|num\.?|nr\.?|nummer|#)[:\s]+([A-Za-z0-9][\w.\-/]{2,})`),
+			regexp.MustCompile(`(?i)(?:Invoice|Rechnung|Bill|Receipt|Order|Reference|Bestell|Auftrags)[ \t]*(?:number|no\.?|num\.?|nr\.?|nummer|#)[: \t]+([A-Za-z0-9][\w.\-/]{2,})`),
 			"ID_NUMBER", 0.90,
 			WithExtractGroup(1),
 		),
 		// Invoice/order/receipt compound forms: "Rechnungsnummer X", "Beleg-Nr. X"
 		NewRegexScanner(
-			regexp.MustCompile(`(?i)(?:Rechnungsnummer|Rechnungs-?Nr\.?|Bestellnummer|Bestell-?Nr\.?|Auftragsnummer|Auftrags-?Nr\.?|Referenz-?Nr\.?|Beleg-?Nr\.?)[:\s]+([A-Za-z0-9][\w.\-/]{2,})`),
+			regexp.MustCompile(`(?i)(?:Rechnungsnummer|Rechnungs-?Nr\.?|Bestellnummer|Bestell-?Nr\.?|Auftragsnummer|Auftrags-?Nr\.?|Referenz-?Nr\.?|Beleg-?Nr\.?)[: \t]+([A-Za-z0-9][\w.\-/]{2,})`),
 			"ID_NUMBER", 0.90,
 			WithExtractGroup(1),
 		),
 		// Invoice/order with colon separator: "Invoice: X", "Reference: X"
 		NewRegexScanner(
-			regexp.MustCompile(`(?i)(?:Invoice|Rechnung|Bill|Receipt|Order|Reference|Beleg)\s*:\s*([A-Za-z0-9][\w.\-/]{2,})`),
+			regexp.MustCompile(`(?i)(?:Invoice|Rechnung|Bill|Receipt|Order|Reference|Beleg)[ \t]*:[ \t]*([A-Za-z0-9][\w.\-/]{2,})`),
 			"ID_NUMBER", 0.90,
 			WithExtractGroup(1),
 		),
@@ -370,7 +370,7 @@ func idNumberScanners() []Scanner {
 		),
 		// Italian invoice: "Fattura n.: FT-2026-0099", "Numero fattura: X"
 		NewRegexScanner(
-			regexp.MustCompile(`(?i)(?:Fattura|Numero\s+fattura|N\.\s*fattura)\s*(?:n\.?|nr\.?|no\.?)?[:\s]+([A-Za-z0-9][\w.\-/]{2,})`),
+			regexp.MustCompile(`(?i)(?:Fattura|Numero[ \t]+fattura|N\.[ \t]*fattura)[ \t]*(?:n\.?|nr\.?|no\.?)?[: \t]+([A-Za-z0-9][\w.\-/]{2,})`),
 			"ID_NUMBER", 0.90,
 			WithExtractGroup(1),
 		),
@@ -715,9 +715,8 @@ func ibanScanners() []Scanner {
 		),
 		NewRegexScanner(
 			regexp.MustCompile(contextPattern),
-			"IBAN", 0.99,
+			"IBAN", 0.95,
 			WithExtractGroup(1),
-			WithValidator(validateIBAN),
 		),
 	}
 }
@@ -868,9 +867,14 @@ func dateScanners() []Scanner {
 	ptMonths := `(?:janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)`
 	ptDateWritten := `\d{1,2}[ \t]+(?:de[ \t]+)?` + ptMonths + `[ \t]+(?:de[ \t]+)?(?:19|20)\d{2}`
 
-	// Month + short/full year (context-triggered): "Leistungszeitraum: November 25"
+	// All month names across supported languages.
 	allMonths := `(?:` + enMonths + `|` + deMonths + `|` + frMonths + `|` + esMonths + `|` + itMonths + `|` + nlMonths + `|` + plMonths + `|` + seMonths + `|` + ptMonths + `)`
-	monthYear := `(?i)(?:Leistungszeitraum|Abrechnungszeitraum|Zeitraum|Abrechnungsmonat|Billing\s+period|Period|Mois)[:\s]+(` + allMonths + `[ \t]+\d{2,4})`
+
+	// Bare month + 4-digit year: "Februar 2026", "March 2025", "janvier 2024"
+	bareMonthYear := `(?i)\b` + allMonths + `[ \t]+(?:19|20)\d{2}\b`
+
+	// Month + short/full year (context-triggered): "Leistungszeitraum: November 25"
+	monthYear := `(?i)(?:Leistungszeitraum|Abrechnungszeitraum|Zeitraum|Abrechnungsmonat|Billing[ \t]+period|Period|Mois)[: \t]+(` + allMonths + `[ \t]+\d{2,4})`
 
 	// ISO format: YYYY-MM-DD
 	dateISO := `\b(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])\b`
@@ -890,6 +894,7 @@ func dateScanners() []Scanner {
 		NewRegexScanner(regexp.MustCompile(plDateWritten), "DATE", 0.85),
 		NewRegexScanner(regexp.MustCompile(seDateWritten), "DATE", 0.85),
 		NewRegexScanner(regexp.MustCompile(ptDateWritten), "DATE", 0.85),
+		NewRegexScanner(regexp.MustCompile(bareMonthYear), "DATE", 0.80),
 		NewRegexScanner(
 			regexp.MustCompile(monthYear),
 			"DATE", 0.85,
